@@ -7,7 +7,7 @@ import RadioSelected from './Radio-Selected';
 import ToolTip from './ToolTip';
 //import SelectCheckBox from './SelectCheckBox';
 import Arrow from './Arrow';
-import { DataAnalyser } from './utils';
+import { DataAnalyser, Utils, KeyGenerator } from './utils';
 /**
  * To Do
  *  submenu position
@@ -308,7 +308,7 @@ export default class DropDown extends Component {
 		return label.substr(0, label.length - 2);
 	};
 	shouldDeselect = selectedObj => {
-		if (this.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
+		if (Utils.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
 		if (selectedObj.hasGroup) {
 			let _tempStateObj = this.state.selectedMultiSelectOptions;
 			if (_tempStateObj[selectedObj.groupName] === undefined) return false;
@@ -330,7 +330,7 @@ export default class DropDown extends Component {
 		return false;
 	};
 	hasInMultiSelected = selectedObj => {
-		if (this.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
+		if (Utils.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
 		let _tempStateObj = this.state.selectedMultiSelectOptions;
 		if (selectedObj.hasGroup) {
 			for (let label in _tempStateObj[selectedObj.groupName]) {
@@ -379,7 +379,7 @@ export default class DropDown extends Component {
 								isCompletedMultiSelection: true
 							});
 						} else {
-							if (!this.isEmptyObject(this._tempMultiselectedOptions)) {
+							if (!Utils.isEmptyObject(this._tempMultiselectedOptions)) {
 								this.setState({
 									isCompletedMultiSelection: true,
 									selectedMultiSelectOptions: this._tempMultiselectedOptions,
@@ -513,8 +513,6 @@ export default class DropDown extends Component {
 		typeof this.props.onTagHover === 'function' &&
 			this.props.onTagHover(this.state.selectedMultiSelectOptions, this.state.selectedOption);
 	};
-	isEmpty = str => !str || str === '';
-	isEmptyObject = obj => Object.keys(obj).length === 0;
 	/**
 	 *  Here we have 'height' issue when return an empty string.
 	 *  to Fix this issue
@@ -531,7 +529,7 @@ export default class DropDown extends Component {
 			if (this.props.multiSelect) {
 				return this.getHiddenComponent();
 			} else {
-				if (this.isEmpty(this.state.selectedOption))
+				if (Utils.isEmptyString(this.state.selectedOption))
 					return this.props.defauleSelectTitle || this.getHiddenComponent();
 				else return this.state.selectedOption;
 			}
@@ -585,10 +583,10 @@ export default class DropDown extends Component {
 	 */
 	getWrapperwidth = () => {
 		let DEFAULT_WIDTH = '200px';
-		if (this.props.autoWidthAdjust && this.isEmpty(this.props.wrapperClass)) {
+		if (this.props.autoWidthAdjust && Utils.isEmptyString(this.props.wrapperClass)) {
 			return DEFAULT_WIDTH;
 		}
-		if (!this.props.autoWidthAdjust && this.isEmpty(this.props.wrapperClass)) return DEFAULT_WIDTH;
+		if (!this.props.autoWidthAdjust && Utils.isEmptyString(this.props.wrapperClass)) return DEFAULT_WIDTH;
 		return undefined;
 	};
 	getHeaderWidth = () => (this.props.autoWidthAdjust && 'auto') || undefined;
@@ -690,8 +688,12 @@ export default class DropDown extends Component {
 	getDefaultOptionClass = () => {
 		return this.reservedClassNames.optionClass;
 	};
-	getTitleAsOption = (classes, currentObj) => {
-		return <div className={classes}>{currentObj.label}</div>;
+	getTitleAsOption = (classes, currentObj, index) => {
+		return (
+			<div key={`${index}`} className={classes}>
+				{currentObj.label}
+			</div>
+		);
 	};
 	getLabelName = labelName => {
 		if (labelName.length > 19 && !this.props.autoWidthAdjust) {
@@ -702,7 +704,7 @@ export default class DropDown extends Component {
 	};
 	getOptionToRender = (isSubMenu, isTitle, classes, currentObj, isMixWithTitle, index, isSelectedOption) => {
 		if (isTitle) {
-			return this.getTitleAsOption(classes, currentObj);
+			return this.getTitleAsOption(classes, currentObj, index);
 		} else {
 			let className = 'option-holder-wrapper';
 			if (
@@ -762,7 +764,7 @@ export default class DropDown extends Component {
 			? this.hasInMultiSelected(currentObj)
 			: currentObj.label === this.state.selectedOption;
 	};
-	getDefaultGroupingSplitter = () => <div className='group-splitter' />;
+	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='group-splitter' />;
 	makeListAsOption = (arrayData, isMixWithTitle) => {
 		let customClasses = '';
 		let mainMenuList = null;
@@ -843,7 +845,7 @@ export default class DropDown extends Component {
 					</div>
 				);
 		} else {
-			if (!this.isEmpty(this.props.singleSelectHeaderText)) {
+			if (!Utils.isEmptyString(this.props.singleSelectHeaderText)) {
 				let header = (
 					<div className={'ddown-header ' + this.props.singleSelectHeaderClass}>
 						{this.props.singleSelectHeaderText}
@@ -885,7 +887,7 @@ export default class DropDown extends Component {
 		const _dataObj = DataAnalyser.analyseInput(this.props.option, this.props.selectedValues);
 		const listObj = this.makeListAsOption(_dataObj.data, _dataObj.isMixWithTitle);
 		const mainMenuList = listObj.mainMenuList;
-		const subMenuList = this.isEmpty(this.state.selectedSubmenu)
+		const subMenuList = Utils.isEmptyString(this.state.selectedSubmenu)
 			? []
 			: listObj.subMenuList[this.state.selectedSubmenu];
 		let wrapperwidth = this.getWrapperwidth();

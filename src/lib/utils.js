@@ -172,3 +172,16 @@ export const DataAnalyser = {
 	isArray: data => typeof data === 'object' && data.constructor === Array,
 	isObject: data => data && typeof data === 'object' && data.constructor === Object
 };
+/**
+ * Some Utility functions
+ */
+export const Utils = {
+	isEmptyString: str => !str || str === '',
+	isEmptyObject: obj => Object.keys(obj).length === 0
+};
+export const KeyGenerator = (function() {
+	let value = 1000;
+	return {
+		getNew: () => ++value
+	};
+})();
