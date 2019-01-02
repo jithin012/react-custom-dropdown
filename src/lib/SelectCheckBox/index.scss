@@ -1,0 +1,29 @@
+
+
+
+.checkbox-container {
+    display: flex;
+    //cursor: pointer;
+    .checkbox-wrapper{
+        display: inline-flex;
+        //cursor: pointer;
+        //background-image: url("/images//deo/check-rectangle.png");
+        width: 30px;
+        height: auto;
+        justify-content: space-between;
+        .checkbox-outer-img{
+            display: inline-flex;
+            position: relative;
+            width: 16px;
+            height: 16px;
+        }
+        .checkbox-inner-img{
+            display: inline-flex;
+            position: relative;
+            width: 10.4px;
+            height: 9.6px;
+            right: 17px;
+            top: 3px;
+        }
+    }
+}
