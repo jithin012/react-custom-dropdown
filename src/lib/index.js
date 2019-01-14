@@ -1,18 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import './index.scss';
-import Tick from './Tick';
-import RadioUnselected from './Radio-Unselected';
-import RadioSelected from './Radio-Selected';
-import ToolTip from './ToolTip';
-//import SelectCheckBox from './SelectCheckBox';
 import Arrow from './Arrow';
+import Cross from './Cross';
 import { DataAnalyser, Utils, KeyGenerator } from './utils';
-/**
- * To Do
- *  submenu position
- *  removeEventListener on component Will Unmount
- */
+import MultiSelect from './Multiselect';
+import Option from './Option';
+
 const showLabelOrder = {
 	SELECTED_LABEL_ONLY: 'SELECTED_LABEL_ONLY',
 	PARENT_LABEL_AND_SELECTED_LABEL: 'PARENT_LABEL_AND_SELECTED_LABEL',
@@ -22,7 +16,7 @@ export default class DropDown extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selectedOption: this.props.defauleSelectTitle,
+			selectedOption: '', //this.props.defauleSelectTitle,
 			selectedMultiSelectOptions: {},
 			selectedMultiSelectLabel: '',
 			width: 0,
@@ -52,6 +46,9 @@ export default class DropDown extends Component {
 		this.setPreselectedValue(nextProps, () => {
 			nextProps.shouldResetState && this.resetState();
 		});
+	}
+	componentWillUnmount() {
+		document.removeEventListener('click', this.handleClickoutside.bind(this));
 	}
 	setPreselectedValue = (nextProps, callBack) => {
 		let _props = nextProps ? nextProps : this.props;
@@ -222,7 +219,7 @@ export default class DropDown extends Component {
 	};
 	onClickClearAll = () => {
 		this.setState({
-			isCompletedMultiSelection: false,
+			isCompletedMultiSelection: !this.props.shouldUseMultiselectApplyBtn,
 			selectedMultiSelectOptions: {},
 			selectedMultiSelectLabel: ''
 		});
@@ -233,14 +230,14 @@ export default class DropDown extends Component {
 		let label = this.state.selectedMultiSelectLabel;
 		let obj = {};
 		if (this.shouldDeselect(selectedObj)) {
-			obj = this.handleDeselect(label, tempObj, selectedLabel, selectedObj);
+			obj = this.handleDeselect(label, tempObj, selectedLabel);
 		} else {
 			obj = this.handleSelect(label, tempObj, selectedLabel, selectedObj);
 		}
 		this.setState({
 			selectedMultiSelectOptions: obj.tempObj,
 			selectedMultiSelectLabel: obj.label,
-			isCompletedMultiSelection: false
+			isCompletedMultiSelection: !this.props.shouldUseMultiselectApplyBtn
 		});
 		typeof this.props.onMultiSelect === 'function' &&
 			this.props.onMultiSelect(obj.label, obj.tempObj, this.props.dropDownRef);
@@ -249,82 +246,41 @@ export default class DropDown extends Component {
 		}
 	};
 	/**
-	 * selectedMultiSelectOptions is in the format of
-	 *  1. if has grouping
-	 *      {
-	 *          <groupName>: {
-	 *              <selectedLabel> : <selectedObj>
-	 *          }...
-	 *      }
-	 *
-	 * 2. if simple MultiSelect
+	 *  if simple MultiSelect
 	 *      {
 	 *          <selectedLabel> : <selectedObj>,
 	 *          <selectedLabel> : <selectedObj>...
 	 *      }
 	 */
-	handleDeselect = (label, tempObj, selectedLabel, selectedObj) => {
-		if (selectedObj.hasGroup) {
-			tempObj[selectedObj.groupName] = tempObj[selectedObj.groupName] || {};
-			delete tempObj[selectedObj.groupName][selectedLabel];
-			label = this.getLabelFromMultiselected(tempObj, true);
-		} else {
-			delete tempObj[selectedLabel];
-			label = this.getLabelFromMultiselected(tempObj, false);
-		}
+	handleDeselect = (label, tempObj, selectedLabel) => {
+		delete tempObj[selectedLabel];
+		label = this.getLabelFromMultiselected(tempObj, false);
 		return {
 			label,
 			tempObj
 		};
 	};
 	handleSelect = (label, tempObj, selectedLabel, selectedObj) => {
-		if (selectedObj.hasGroup) {
-			tempObj[selectedObj.groupName] = tempObj[selectedObj.groupName] || {};
-			tempObj[selectedObj.groupName] = selectedObj.acceptOnlyOne ? {} : tempObj[selectedObj.groupName];
-			tempObj[selectedObj.groupName][selectedLabel] = selectedObj;
-			label = this.getLabelFromMultiselected(tempObj, true);
-		} else {
-			tempObj[selectedLabel] = selectedObj;
-			label = this.getLabelFromMultiselected(tempObj, false);
-		}
+		tempObj[selectedLabel] = selectedObj;
+		label = this.getLabelFromMultiselected(tempObj, false);
 		return {
 			label,
 			tempObj
 		};
 	};
-	getLabelFromMultiselected = (obj, hasGroup, selectedObj) => {
+	getLabelFromMultiselected = obj => {
 		let label = '';
-		if (hasGroup) {
-			for (let groupLabel in obj) {
-				for (let _label in obj[groupLabel]) {
-					label += _label + ', ';
-				}
-			}
-		} else {
-			for (let key in obj) {
-				label += key + ', ';
-			}
+		for (let key in obj) {
+			label += key + ', ';
 		}
 		return label.substr(0, label.length - 2);
 	};
 	shouldDeselect = selectedObj => {
 		if (Utils.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
-		if (selectedObj.hasGroup) {
-			let _tempStateObj = this.state.selectedMultiSelectOptions;
-			if (_tempStateObj[selectedObj.groupName] === undefined) return false;
-			let groupObj = _tempStateObj[selectedObj.groupName];
-			for (let label in groupObj) {
-				if (groupObj[label]['value'] === selectedObj['value']) {
-					return true;
-				}
-			}
-			return false;
-		} else {
-			let _tempStateObj = this.state.selectedMultiSelectOptions;
-			for (let label in _tempStateObj) {
-				if (_tempStateObj[label]['value'] === selectedObj['value']) {
-					return true;
-				}
+		let _tempStateObj = this.state.selectedMultiSelectOptions;
+		for (let label in _tempStateObj) {
+			if (_tempStateObj[label]['value'] === selectedObj['value']) {
+				return true;
 			}
 		}
 		return false;
@@ -332,18 +288,9 @@ export default class DropDown extends Component {
 	hasInMultiSelected = selectedObj => {
 		if (Utils.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
 		let _tempStateObj = this.state.selectedMultiSelectOptions;
-		if (selectedObj.hasGroup) {
-			for (let label in _tempStateObj[selectedObj.groupName]) {
-				if (_tempStateObj[selectedObj.groupName][label]['value'] === selectedObj['value']) {
-					return true;
-				}
-			}
-			return false;
-		} else {
-			for (let label in _tempStateObj) {
-				if (_tempStateObj[label]['value'] === selectedObj['value']) {
-					return true;
-				}
+		for (let label in _tempStateObj) {
+			if (_tempStateObj[label]['value'] === selectedObj['value']) {
+				return true;
 			}
 		}
 		return false;
@@ -443,6 +390,16 @@ export default class DropDown extends Component {
 			}
 		});
 	};
+	/**
+	 * may not necessary
+	 */
+	// hideOptionContainerOnHover = e => {
+	// 	if (this.isClickWithinDropdownWrapper(e.target)) {
+	// 		this.shouldOpen = true;
+	// 		this.hideSubMenu();
+	// 		this.hideOption(e.target);
+	// 	}
+	// };
 	getWrapperElement = event => {
 		let _target = event.target.parentElement;
 		let a = 0;
@@ -518,26 +475,58 @@ export default class DropDown extends Component {
 	 *  to Fix this issue
 	 *      1. return a hidden component with longest string in options
 	 */
-	getTitle = () => {
+	renderHeader = () => {
 		if (typeof this.props.fixedTitle === 'function')
 			return this.props.fixedTitle(
 				this.props.multiSelect ? this.state.selectedMultiSelectLabel : this.state.selectedOption
 			);
-		if (this.props.multiSelect) {
-			return this.getHiddenComponent();
-		} else {
-			if (this.props.multiSelect) {
-				return this.getHiddenComponent();
-			} else {
-				if (Utils.isEmptyString(this.state.selectedOption))
-					return this.props.defauleSelectTitle || this.getHiddenComponent();
-				else return this.state.selectedOption;
-			}
+		if (this.props.multiSelect) return this.renderHeaderForMultiselect();
+		else {
+			if (Utils.isEmptyString(this.state.selectedOption))
+				return (this.props.defauleSelectTitle && this.renderPlaceholder()) || this.getHiddenComponent();
+			else return this.state.selectedOption;
 		}
 	};
-	getHiddenComponent = () => {
-		return <div style={{ opacity: '0', width: 'auto', fontWeight: '100' }}>{this.longestString}</div>;
+	renderPlaceholder = () => <span className='ddown-placeholder'>{this.props.defauleSelectTitle}</span>;
+	/**
+	 * title to show in case of multi select; contain close btn
+	 */
+	renderHeaderForMultiselect = () => {
+		let selectedOptionsArray = Object.keys(this.state.selectedMultiSelectOptions);
+		if (selectedOptionsArray.length > 0) {
+			let titleToRender = [];
+			selectedOptionsArray.map(selectedOption => {
+				titleToRender.push(
+					<span key={selectedOption} className='option-selected'>
+						<Cross
+							height={this.props.cross.width}
+							width={this.props.cross.height}
+							fill={this.props.cross.color}
+							onClick={() => {
+								this.shouldOpen = false;
+								let tempObj = this.state.selectedMultiSelectOptions || {};
+								let label = this.state.selectedMultiSelectLabel;
+								let obj = {};
+								obj = this.handleDeselect(label, tempObj, selectedOption);
+								this.setState({
+									selectedMultiSelectOptions: obj.tempObj,
+									selectedMultiSelectLabel: obj.label,
+									isCompletedMultiSelection: true
+								});
+							}}
+						/>
+						<span style={{ paddingLeft: '3px' }}>{selectedOption}</span>
+					</span>
+				);
+			});
+			return <div style={{ display: 'inline-block' }}>{titleToRender}</div>;
+		} else {
+			return this.renderPlaceholder();
+		}
 	};
+	getHiddenComponent = () => (
+		<div style={{ opacity: '0', width: 'auto', fontWeight: '100' }}>{this.longestString}</div>
+	);
 	resetState = callBack => {
 		this.setState(
 			{
@@ -554,24 +543,28 @@ export default class DropDown extends Component {
 	 * caluculate longest String Data for "Auto Width conguration"
 	 *
 	 */
-	checkLongestString = optionLabel => {
+	checkLongestString = (optionLabel = '') => {
 		if (optionLabel.length > this.longestOptionStrLength) {
 			this.longestOptionStrLength = optionLabel.length;
 			this.longestString = optionLabel;
 		}
 	};
-	onMouseOver = (e, selectedLabel, selectedObj) => {
-		if (selectedObj.isSubmenu) {
-			this.mouseOnSubmenu = false;
-			this.setState({ selectedSubmenu: selectedLabel });
-			this.showSubmenu(e);
-		}
+	/**
+	 * @TODO
+	 * submenu - next version
+	 */
+	onMouseOver = (e, selectedObj) => {
+		// if (selectedObj.isSubmenu) {
+		// 	this.mouseOnSubmenu = false;
+		// 	this.setState({ selectedSubmenu: selectedObj.label });
+		// 	this.showSubmenu(e);
+		// }
 	};
-	onMouseEnter = (e, selectedLabel, selectedObj) => {
-		typeof this.props.onOptionHoverStart === 'function' && this.props.onOptionHoverStart(e, selectedObj);
-		this.hideSubMenu();
+	onMouseEnter = (e, selectedObj) => {
+		// typeof this.props.onOptionHoverStart === 'function' && this.props.onOptionHoverStart(e, selectedObj);
+		// this.hideSubMenu();
 	};
-	onMouseLeave = (e, selectedLabel, selectedObj) => {
+	onMouseLeave = (e, selectedObj) => {
 		typeof this.props.onOptionHoverEnd === 'function' && this.props.onOptionHoverEnd(e, selectedObj);
 	};
 	/**
@@ -589,7 +582,7 @@ export default class DropDown extends Component {
 		if (!this.props.autoWidthAdjust && Utils.isEmptyString(this.props.wrapperClass)) return DEFAULT_WIDTH;
 		return undefined;
 	};
-	getHeaderWidth = () => (this.props.autoWidthAdjust && 'auto') || undefined;
+	getHeaderWidth = () => (this.props.autoWidthAdjust && '100%') || undefined;
 	getOptionContainerWidth = () => {
 		return (this.props.autoWidthAdjust && !this.isFirstTimeOpen && this.WidthRequiredToshow) || undefined;
 	};
@@ -619,145 +612,28 @@ export default class DropDown extends Component {
 	};
 	hideSubMenu = () => this.hideOptionContainer(this.reservedClassNames.submenuClass);
 	isMultiSelect = () => this.props.multiSelect;
-	tickRequiredForSingleSelect = () => this.props.tickRequiredForSingleSelect;
-	shouldUseRadioBtn = () => this.props.shouldUseRadioBtn;
-	getDivBox = (marginLeft = '6px', marginRight = '6px') => {
-		return <div style={{ marginLeft: marginLeft, marginRight: marginRight }} />;
-	};
-	getRadioBtnIfSingleSelect = (currentObj, isSelectedOption, selectedOptionColor) => {
-		if (!this.isMultiSelect()) {
-			if (this.shouldUseRadioBtn()) {
-				if (isSelectedOption)
-					return (
-						<RadioSelected
-							width={12}
-							height={12}
-							stroke={selectedOptionColor ? selectedOptionColor : ''}
-							onClick={e => {
-								this.onSelect(e, currentObj['label'], currentObj);
-							}}
-						/>
-					);
-				return (
-					<RadioUnselected
-						width={12}
-						height={12}
-						onClick={e => {
-							this.onSelect(e, currentObj['label'], currentObj);
-						}}
-					/>
-				);
-			}
-			return null;
-		}
-		return null;
-	};
-	getTickIfSingleSelected = (isSelectedOption, selectedOptionColor) => {
-		if (!this.isMultiSelect()) {
-			if (this.tickRequiredForSingleSelect()) {
-				if (isSelectedOption)
-					return (
-						<Tick
-							width={12}
-							height={12}
-							fill={selectedOptionColor ? selectedOptionColor : ''}
-							stroke={selectedOptionColor ? selectedOptionColor : ''}
-						/>
-					);
-				else return this.getDivBox();
-			}
-			return null;
-		}
-		return null;
-	};
-	getTickIfMultiSelected = (isSubMenu, isTitle, isSelectedOption, selectedOptionColor) => {
-		if (this.isMultiSelect()) {
-			return !isSubMenu && !isTitle && isSelectedOption ? (
-				<Tick
-					width={12}
-					height={12}
-					fill={selectedOptionColor ? selectedOptionColor : ''}
-					stroke={selectedOptionColor ? selectedOptionColor : ''}
-				/>
-			) : (
-				this.getDivBox()
-			);
-		}
-		return null;
-	};
-	getDefaultOptionClass = () => {
-		return this.reservedClassNames.optionClass;
-	};
-	getTitleAsOption = (classes, currentObj, index) => {
+	getOptionToRender = (currentObj, classes, isMixWithTitle, index, isSelectedOption) => {
 		return (
-			<div key={`${index}`} className={classes}>
-				{currentObj.label}
-			</div>
+			<Fragment key={index}>
+				<Option
+					{...this.props}
+					classes={classes}
+					optionObj={currentObj}
+					isMixWithTitle={isMixWithTitle}
+					index={index}
+					isSelectedOption={isSelectedOption}
+					isMultiSelect={this.isMultiSelect()}
+					tickRequiredForSingleSelect={this.props.tickRequiredForSingleSelect}
+					shouldUseRadioBtn={this.props.shouldUseRadioBtn}
+					onMouseOver={this.onMouseOver}
+					onSelect={this.onSelect}
+					onMouseEnter={this.onMouseEnter}
+					onMouseLeave={this.onMouseLeave}
+					defaultOptionClass={this.reservedClassNames.optionClass}
+					autoWidthAdjust={this.props.autoWidthAdjust}
+				/>
+			</Fragment>
 		);
-	};
-	getLabelName = labelName => {
-		if (labelName.length > 19 && !this.props.autoWidthAdjust) {
-			return <ToolTip text={labelName}>{labelName.substr(0, 16) + '... '}</ToolTip>;
-		} else {
-			return labelName;
-		}
-	};
-	getOptionToRender = (isSubMenu, isTitle, classes, currentObj, isMixWithTitle, index, isSelectedOption) => {
-		if (isTitle) {
-			return this.getTitleAsOption(classes, currentObj, index);
-		} else {
-			let className = 'option-holder-wrapper';
-			if (
-				this.isMultiSelect() ||
-				this.tickRequiredForSingleSelect() ||
-				this.shouldUseRadioBtn() ||
-				isMixWithTitle
-			)
-				className = className + ' option-holder';
-			if (currentObj.isDisabled) classes = classes + ' option-holder-disabled';
-			return (
-				<div
-					className={className}
-					onMouseOver={e => {
-						this.onMouseOver(e, currentObj.label, currentObj);
-					}}
-					key={`${index}`}
-					onClick={e => {
-						//isDisabled
-						if (!currentObj.isSubmenu && !currentObj.isDisabled)
-							this.onSelect(e, currentObj.label, currentObj);
-					}}
-					onMouseEnter={e => {
-						this.onMouseEnter(e, currentObj.label, currentObj);
-					}}
-					onMouseLeave={e => {
-						this.onMouseLeave(e, currentObj.label, currentObj);
-					}}
-					ref={refs => {
-						// To Do with ref
-					}}
-				>
-					{this.getTickIfMultiSelected(isSubMenu, isTitle, isSelectedOption, this.props.selectedOptionColor)}
-					{this.getTickIfSingleSelected(isSelectedOption, this.props.selectedOptionColor)}
-					{this.getRadioBtnIfSingleSelect(currentObj, isSelectedOption, this.props.selectedOptionColor)}
-					<div
-						data-key={currentObj.value}
-						key={currentObj.value}
-						className={this.getDefaultOptionClass() + ' ' + classes}
-						// style = {this.getSelectedOptionStyle(isSelectedOption)}
-					>
-						{this.getLabelName(currentObj.label)}
-					</div>
-				</div>
-			);
-		}
-	};
-	getSelectedOptionStyle = isSelectedOption => {
-		return isSelectedOption
-			? this.props.selectedOptionColor
-				? { color: this.props.selectedOptionColor }
-				: null
-			: null;
 	};
 	isSelectedOption = currentObj => {
 		return this.isMultiSelect()
@@ -772,7 +648,7 @@ export default class DropDown extends Component {
 		let arrLength = arrayData.length;
 		let groupingSplitter = null;
 		let isSelectedOption = false;
-		mainMenuList = arrayData.map((currentObj, index, arr) => {
+		mainMenuList = arrayData.map((currentObj, index) => {
 			this.checkLongestString(currentObj.label);
 			customClasses = '';
 			isSelectedOption = this.isSelectedOption(currentObj);
@@ -786,100 +662,45 @@ export default class DropDown extends Component {
 			}
 			if (currentObj.isTitle && index !== 0 && index !== arrLength - 1) {
 				groupingSplitter =
-					(this.props.groupingSpillterRenderer && this.props.groupingSpillterRenderer()) ||
+					(typeof this.props.groupingSpillterRenderer == 'function' &&
+						this.props.groupingSpillterRenderer()) ||
 					this.getDefaultGroupingSplitter();
 				return [
 					groupingSplitter,
-					this.getOptionToRender(
-						currentObj.isSubmenu,
-						currentObj.isTitle,
-						customClasses,
-						currentObj,
-						isMixWithTitle,
-						index,
-						isSelectedOption
-					)
+					this.getOptionToRender(currentObj, customClasses, isMixWithTitle, index, isSelectedOption)
 				];
 			}
-			return this.getOptionToRender(
-				currentObj.isSubmenu,
-				currentObj.isTitle,
-				customClasses,
-				currentObj,
-				isMixWithTitle,
-				index,
-				isSelectedOption
-			);
+			return this.getOptionToRender(currentObj, customClasses, isMixWithTitle, index, isSelectedOption);
 		});
 		if (this.props.multiSelect) {
-			if (this.props.isRequiredDefaultMultiselectDesign) {
-				let header = (
-					<div className='ddown-multisel-header'>
-						<div className='ddown-multisel-header-label'>{this.props.multiselectHeaderLabel}</div>
-						<div className='ddown-multisel-header-clear-all' onClick={this.onClickClearAll}>
-							{this.props.multiSelectHeaderClearAllLabel}
-						</div>
-					</div>
-				);
-				mainMenuList = (
-					<div>
-						{header}
-						{mainMenuList}
-						<div
-							className='ddown-mutilsel-btn'
-							onClick={e => {
-								this.onMultiSelectDone();
-							}}
-						>
-							APPLY
-						</div>
-					</div>
-				);
-			} else
-				mainMenuList = (
-					<div>
-						{this.props.multiselectHeaderRenderer && this.props.multiselectHeaderRenderer()}
-						{mainMenuList}
-						{this.getCustomApplyBtn()}
-						{/* {this.props.multiselectBtnRenderer && this.props.multiselectBtnRenderer()} */}
-					</div>
-				);
+			mainMenuList = (
+				<MultiSelect
+					{...this.props}
+					mainMenuList={mainMenuList}
+					onMultiSelectDone={this.onMultiSelectDone}
+					onClickClearAll={this.onClickClearAll}
+				/>
+			);
 		} else {
-			if (!Utils.isEmptyString(this.props.singleSelectHeaderText)) {
-				let header = (
-					<div className={'ddown-header ' + this.props.singleSelectHeaderClass}>
-						{this.props.singleSelectHeaderText}
-					</div>
-				);
-				mainMenuList = (
-					<div>
-						{header}
-						{mainMenuList}
-					</div>
-				);
-			}
+			mainMenuList = (
+				<div>
+					{typeof this.props.optionHeaderer === 'function' && this.props.optionHeaderer()}
+					{mainMenuList}
+				</div>
+			);
 		}
 		return { mainMenuList, subMenuList };
 	};
-	getCustomApplyBtn = () => {
-		if (this.props.multiselectBtnClass)
-			return (
-				<div
-					className={this.props.multiselectBtnClass ? this.props.multiselectBtnClass : ''}
-					onClick={e => {
-						this.onMultiSelectDone();
-					}}
-				>
-					{this.props.multiselectBtnLabel ? this.props.multiselectBtnLabel : 'APPLY'}
-				</div>
-			);
-		else return null;
-	};
-	getArrowBtn = () => {
-		if (!this.props.shouldUseArrow) return null;
+	renderArrow = () => {
 		return (
-			<div className='arrow-zone'>
-				<Arrow />
+			<div
+				className='arrow-zone'
+				style={{
+					width: this.props.arrow.width
+					//transform: this.state.shouldOpenOption ? 'rotate(180deg)' : 'rotate(0deg);'
+				}}
+			>
+				<Arrow fill={this.props.arrow.color} width={this.props.arrow.width} height={this.props.arrow.height} />
 			</div>
 		);
 	};
@@ -893,6 +714,9 @@ export default class DropDown extends Component {
 		let wrapperwidth = this.getWrapperwidth();
 		let headerWidth = this.getHeaderWidth();
 		let optionContainerWidth = this.getOptionContainerWidth();
+		let headerClass = this.reservedClassNames.dropbtn;
+		headerClass += this.isMultiSelect() ? ' label-multi-table ' : ' label-single-center ';
+		headerClass += this.props.headerClass ? this.props.headerClass : '';
 		return (
 			<div
 				ref={this.wrapperRef}
@@ -901,11 +725,13 @@ export default class DropDown extends Component {
 				className={this.reservedClassNames.wrapper + ' ' + this.props.wrapperClass}
 			>
 				<div
-					className={this.reservedClassNames.dropbtn + ' ' + this.props.headerClass}
-					onClick={this.toggleDropdown}
-					onMouseOver={() => {
+					className={headerClass}
+					onClick={this.props.disabled ? null : this.toggleDropdown}
+					onMouseOver={event => {
 						this.onHeaderHover();
 					}}
+					onMouseEnter={this.props.shouldOpenOptionsOnhover ? this.toggleDropdown : null}
+					//onMouseLeave={this.props.shouldOpenOptionsOnhover ? this.hideOptionContainerOnHover : null}
 					ref={refs => {
 						this.headerRef = refs;
 						// hoverIntent(refs, () => {
@@ -914,8 +740,8 @@ export default class DropDown extends Component {
 					}}
 					style={{ width: typeof headerWidth !== 'undefined' ? headerWidth : '' }}
 				>
-					{this.getTitle()}
-					{this.getArrowBtn()}
+					{this.renderHeader()}
+					{this.props.shouldUseArrow && this.renderArrow()}
 				</div>
 				{this.props.headerOptionSplitterRenderer && this.props.headerOptionSplitterRenderer()}
 				<div
@@ -936,7 +762,7 @@ export default class DropDown extends Component {
 }
 
 DropDown.defaultProps = {
-	defauleSelectTitle: '', // Default Title When component init
+	defauleSelectTitle: 'Select...', // Default Title When component init
 	option: [], // option show in the drop down
 	onSelect: null, // fn: callback trigger when on select of each selection of the option
 	onChange: null, // fn : callback trigger when on change
@@ -950,13 +776,15 @@ DropDown.defaultProps = {
 	optionClass: '', // for overriding default options class
 	autoWidthAdjust: true, // auto width adjustment of this component
 	shouldResetState: false, // Use when re render the component. shouldResetState set "true" for reset the selected option to empty.
+
 	multiSelect: false, // multi select
-	isRequiredDefaultMultiselectDesign: true, // render Default header part and apply btn.  Only if multiselected is true
-	multiselectHeaderLabel: 'Filter By Value', // Label show as header : Only if multiselected is true and "isRequiredDefaultMultiselectDesign" is true
-	multiSelectHeaderClearAllLabel: 'Clear All', // Label for Clear multiselection: Only if multiselected is true "isRequiredDefaultMultiselectDesign" is true
-	multiselectBtnClass: '', // class for custom apply btn
-	multiselectBtnLabel: '', // custom apply btn label
-	multiselectHeaderRenderer: null, // fn : return jsx :: use instead of header part in the options . Only if multiselected is true
+	shouldUseMultiselectOptionHeader: true, // render Default header part and apply btn.  Only if multiselected is true
+	multiselectHeaderLabel: 'Filter By Value', // Label show as header : Only if multiselected is true and "shouldUseMultiselectOptionHeader" is true
+	multiSelectHeaderClearAllLabel: 'Clear All', // Label for Clear multiselection: Only if multiselected is true "shouldUseMultiselectOptionHeader" is true
+	shouldUseMultiselectApplyBtn: false,
+	multiselectApplyBtnClass: '', // class for custom apply btn
+	multiselectApplyBtnLabel: 'Apply', // custom apply btn label
+
 	onMultiSelect: null, // fn:  Multi selected callback: call on each Selection:  Only if multiselected is true
 	onMultiSelectDone: null, // fn: multi selected callback: call after apply btn is Click.
 	groupingSpillterRenderer: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
@@ -966,15 +794,40 @@ DropDown.defaultProps = {
 	onOpenOption: null,
 	orderToShowLabelIfSubmenu: 'SELECTED_LABEL_ONLY',
 	selectedValues: null, // It can be object or array. Use Object for single select and array of Object for multi select
-	tickRequiredForSingleSelect: false,
 	shouldUseRadioBtn: false, // Radio btn is required or not For Single Select
 	isAlwaysOpen: false,
 	shouldCloseOnSelectIfAcceptOne: false, //close the drop down options when slect on a grouping. @Note Each grouping should be accept Only one
 	autoOpen: false,
-	shouldUseArrow: false,
-	singleSelectHeaderText: '',
-	singleSelectHeaderClass: '',
-	selectedOptionColor: '#39BB9C'
+	shouldUseArrow: true,
+	selectedOptionColor: '#39BB9C',
+
+	tickRequiredForSingleSelect: false,
+	tick: {
+		width: 12,
+		height: 12,
+		color: '#50b7e8'
+	},
+	radio: {
+		width: 12,
+		height: 12,
+		selectedFillColor: '#50b7e8',
+		unSelectedFillColor: '#77878e'
+	},
+	cross: {
+		width: 13,
+		height: 13,
+		color: '#50b7e8'
+	},
+	arrow: {
+		color: 'gray',
+		width: 12,
+		height: 12
+	},
+	optionHeaderer: null,
+	removeOptionWhenSelected: false,
+	selectedOptionClass: '',
+	disabled: false,
+	shouldOpenOptionsOnhover: false
 };
 DropDown.propTypes = {
 	defauleSelectTitle: PropTypes.string,
@@ -993,9 +846,8 @@ DropDown.propTypes = {
 	height: PropTypes.string,
 	shouldResetState: PropTypes.bool,
 	multiSelect: PropTypes.bool,
-	isRequiredDefaultMultiselectDesign: PropTypes.bool,
-	multiselectHeaderRenderer: PropTypes.func,
-	multiselectBtnClass: PropTypes.string,
+	shouldUseMultiselectOptionHeader: PropTypes.bool,
+	multiselectApplyBtnClass: PropTypes.string,
 	multiselectHeaderLabel: PropTypes.string,
 	multiSelectHeaderClearAllLabel: PropTypes.string,
 	onMultiSelect: PropTypes.func,
@@ -1012,7 +864,12 @@ DropDown.propTypes = {
 	shouldCloseOnSelectIfAcceptOne: PropTypes.bool,
 	autoOpen: PropTypes.bool,
 	shouldUseArrow: PropTypes.bool,
-	singleSelectHeaderText: PropTypes.string,
-	singleSelectHeaderClass: PropTypes.string,
-	selectedOptionColor: PropTypes.string
+	selectedOptionColor: PropTypes.string,
+	shouldUseMultiselectApplyBtn: PropTypes.bool,
+	optionHeader: PropTypes.func,
+	removeOptionWhenSelected: PropTypes.bool,
+	selectedOptionClass: PropTypes.string,
+	tick: PropTypes.object,
+	disabled: PropTypes.bool,
+	shouldOpenOptionsOnhover: PropTypes.bool
 };
