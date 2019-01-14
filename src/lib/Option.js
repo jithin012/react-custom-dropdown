@@ -74,25 +74,7 @@ const renderTick = (isSelectedOption, props) => {
 };
 const renderRadioBtn = (isSelectedOption, currentObj, props) => {
 	if (isSelectedOption)
-		return (
-			<RadioSelected
-				width={props.width}
-				height={props.height}
-				stroke={props.selectedFillColor}
-				onClick={e => {
-					props.onSelect(e, currentObj['label'], currentObj);
-				}}
-			/>
-		);
-	return (
-		<RadioUnselected
-			width={props.width}
-			height={props.height}
-			stroke={props.unSelectedFillColor}
-			onClick={e => {
-				props.onSelect(e, currentObj['label'], currentObj);
-			}}
-		/>
-	);
+		return <RadioSelected width={props.width} height={props.height} stroke={props.selectedFillColor} />;
+	return <RadioUnselected width={props.width} height={props.height} stroke={props.unSelectedFillColor} />;
 };
 export default Option;
