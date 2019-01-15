@@ -127,7 +127,7 @@ class App extends Component {
 }
 var InputSample = {
 	simpleDropDown: [
-		{ label: 'MicroSoft Word', value: 'Microsoft Word' },
+		{ label: 'MicroSoft Word', value: 'Microsoft Word', subMenu: [{ label: 'sdsd', value: 'sdsdd' }] },
 		{ label: 'PageMaker', value: 'PageMaker' },
 		{ label: 'Different', value: 'Different' }
 	],
