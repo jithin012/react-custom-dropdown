@@ -7,11 +7,6 @@ import { DataAnalyser, Utils, KeyGenerator } from './utils';
 import MultiSelect from './Multiselect';
 import Option from './Option';
 
-const showLabelOrder = {
-	SELECTED_LABEL_ONLY: 'SELECTED_LABEL_ONLY',
-	PARENT_LABEL_AND_SELECTED_LABEL: 'PARENT_LABEL_AND_SELECTED_LABEL',
-	SELECTED_LABEL_AND_PARENT_LABEL: 'SELECTED_LABEL_AND_PARENT_LABEL'
-};
 export default class DropDown extends Component {
 	constructor(props) {
 		super(props);
@@ -412,20 +407,13 @@ export default class DropDown extends Component {
 				let _key = this.props._key && this.props._key;
 				preSelectedOption !== selectedLabel && this.onChange(e, selectedLabel, _key, selectedObj, parentObject);
 				this.setState({
-					selectedOption: this.getLabelToShowOnSingleSelect(selectedLabel, parentObject)
+					selectedOption: selectedLabel
 				});
 				typeof this.props.onSelect === 'function' &&
 					this.props.onSelect(e, selectedLabel, selectedObj, _key, parentObject);
 				this.hideAllOptions();
 			}
 		}
-	};
-	getLabelToShowOnSingleSelect = (selectedLabel, parentObject) => {
-		if (this.props.orderToShowLabelIfSubmenu === showLabelOrder.PARENT_LABEL_AND_SELECTED_LABEL)
-			return parentObject ? parentObject.label + ' ' + selectedLabel : selectedLabel;
-		if (this.props.orderToShowLabelIfSubmenu === showLabelOrder.SELECTED_LABEL_AND_PARENT_LABEL)
-			return parentObject ? selectedLabel + ' ' + parentObject.label : selectedLabel;
-		if (this.props.orderToShowLabelIfSubmenu === showLabelOrder.SELECTED_LABEL_ONLY) return selectedLabel;
 	};
 	onChange = (e, selectedLabel, _key, selectedObj, parentObject) =>
 		typeof this.props.onChange === 'function' &&
@@ -740,7 +728,6 @@ DropDown.defaultProps = {
 	fixedTitle: null,
 	dropDownRef: null,
 	onOpenOption: null,
-	orderToShowLabelIfSubmenu: 'SELECTED_LABEL_ONLY',
 	selectedValues: null, // It can be object or array. Use Object for single select and array of Object for multi select
 	shouldUseRadioBtn: false, // Radio btn is required or not For Single Select
 	isAlwaysOpen: false,
@@ -805,7 +792,6 @@ DropDown.propTypes = {
 	fixedTitle: PropTypes.func,
 	dropDownRef: PropTypes.string,
 	onOpenOption: PropTypes.func,
-	orderToShowLabelIfSubmenu: PropTypes.string,
 	tickRequiredForSingleSelect: PropTypes.bool,
 	shouldUseRadioBtn: PropTypes.bool,
 	isAlwaysOpen: PropTypes.bool,
