@@ -1,5 +1,7 @@
 /**
  * @todo
+ * onHover
+ * default open - options
  *Arrow ROTATION ON open/close
  * issue on multi select --> select
  *  removeEventListener on component Will Unmount -- partially completed
