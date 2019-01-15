@@ -21,7 +21,8 @@ export default class DropDown extends Component {
 			selectedMultiSelectLabel: '',
 			width: 0,
 			selectedSubmenu: '',
-			isCompletedMultiSelection: true
+			isCompletedMultiSelection: true,
+			shouldOpenOption: false
 		};
 		this.wrapperRef = React.createRef();
 	}
@@ -40,7 +41,7 @@ export default class DropDown extends Component {
 	componentDidMount() {
 		this.listenClickoutsideEvent();
 		this.setPreselectedValue();
-		this.props.autoOpen && this.headerRef.click();
+		this.props.autoOpen && this.setState({ shouldOpenOption: true });
 	}
 	componentWillReceiveProps(nextProps) {
 		this.setPreselectedValue(nextProps, () => {
@@ -307,7 +308,6 @@ export default class DropDown extends Component {
 				this.state.selectedMultiSelectLabel
 			);
 	};
-	shouldOpen = true;
 	_tempMultiselectedOptions = {};
 	_tempMultiselectedLabel = '';
 	/*************************************
@@ -347,9 +347,8 @@ export default class DropDown extends Component {
 		}
 	};
 	hideAllOptions = () => {
-		this.shouldOpen = true;
-		this.hideMainMenu();
 		this.hideSubMenu();
+		this.setState({ shouldOpenOption: false });
 	};
 	isClickWithinDropdownWrapper = target => {
 		let maxLoopLimit = 15;
@@ -374,30 +373,8 @@ export default class DropDown extends Component {
 	};
 	hasTitleClass = targetObj => targetObj && targetObj.matches('.' + this.reservedClassNames.isTitle);
 	toggleDropdown = e => {
-		this.hideMainMenu(true);
-		let childElems = this.getWrapperElement(e).childNodes;
-		childElems.forEach(item => {
-			if (this.isDropdownOptionContainer(item.classList)) {
-				if (this.shouldOpen) {
-					this.shouldOpen = false;
-					this.showOption(item);
-					this.onOpenOptions(item, this.props._key && this.props._key);
-				} else {
-					this.shouldOpen = true;
-					this.hideSubMenu();
-					this.hideOption(item);
-				}
-			}
-		});
-	};
-	getWrapperElement = event => {
-		let _target = event.target.parentElement;
-		let a = 0;
-		while (!_target.classList.contains(this.reservedClassNames.wrapper) && a < 15) {
-			_target = _target.parentElement;
-			a++;
-		}
-		return _target;
+		// this.onOpenOptions(item, this.props._key && this.props._key);
+		this.setState({ shouldOpenOption: !this.state.shouldOpenOption });
 	};
 	isDropdownWrapper = arrayData => {
 		if ((arrayData && typeof arrayData === 'undefined') || arrayData === null) return 0;
@@ -407,8 +384,9 @@ export default class DropDown extends Component {
 		if (typeof arrayData === 'undefined') return 0;
 		return arrayData.value.indexOf(this.reservedClassNames.optionContainerClass) >= 0;
 	};
-	toggleClass = elem => elem.toggle('show');
-	showOption = elem => elem.classList.add('show');
+	showOption = elem => {
+		elem.classList.add('show');
+	};
 	isOptionsVisible = elem => elem.classList.contains('show');
 	hideOption = elem => elem.classList.remove('show');
 	/**
@@ -493,7 +471,6 @@ export default class DropDown extends Component {
 							width={this.props.cross.height}
 							fill={this.props.cross.color}
 							onClick={() => {
-								this.shouldOpen = false;
 								let tempObj = this.state.selectedMultiSelectOptions || {};
 								let label = this.state.selectedMultiSelectLabel;
 								let obj = {};
@@ -580,24 +557,6 @@ export default class DropDown extends Component {
 		let elems = document.getElementsByClassName(className);
 		for (let i = 0; i < elems.length; i++) {
 			elems[i] && elems[i].classList && this.hideOption(elems[i]);
-		}
-	};
-	hideMainMenu = (forceClose = true) => {
-		forceClose && this.hideOptionContainer(this.reservedClassNames.optionContainerClass);
-		let childElems;
-		if (!forceClose) {
-			let elems = document.getElementsByClassName(this.reservedClassNames.wrapper);
-			for (let i = 0; i < elems.length; i++) {
-				if (this.wrapperRef.current === elems[i] && this.props.isAlwaysOpen) {
-					continue;
-				}
-				childElems = elems[i].childNodes;
-				childElems.forEach(item => {
-					if (this.isDropdownOptionContainer(item.classList) && this.wrapperRef.current === elems[i]) {
-						this.hideOption(item);
-					}
-				});
-			}
 		}
 	};
 	hideSubMenu = () => this.hideOptionContainer(this.reservedClassNames.submenuClass);
@@ -731,8 +690,11 @@ export default class DropDown extends Component {
 				</div>
 				{this.props.headerOptionSplitterRenderer && this.props.headerOptionSplitterRenderer()}
 				<div
-					style={{ width: typeof optionContainerWidth !== 'undefined' ? optionContainerWidth : '' }}
-					className={this.reservedClassNames.optionContainerClass + '  ' + this.props.optionContainerClass}
+					style={{
+						width: typeof optionContainerWidth !== 'undefined' ? optionContainerWidth : '',
+						display: this.state.shouldOpenOption ? 'block' : 'none'
+					}}
+					className={this.reservedClassNames.optionContainerClass + ' ' + this.props.optionContainerClass}
 				>
 					{mainMenuList}
 				</div>
@@ -813,7 +775,7 @@ DropDown.defaultProps = {
 	removeOptionWhenSelected: false,
 	selectedOptionClass: '',
 	disabled: false,
-	shouldOpenOptionsOnhover: true
+	shouldOpenOptionsOnhover: false
 };
 DropDown.propTypes = {
 	defauleSelectTitle: PropTypes.string,
