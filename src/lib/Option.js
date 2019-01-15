@@ -23,13 +23,7 @@ const Option = props => {
 				}}
 				key={`${index}`}
 				onClick={e => {
-					if (!optionObj.isSubmenu && !optionObj.isDisabled) props.onSelect(e, optionObj.label, optionObj);
-				}}
-				onMouseEnter={e => {
-					props.onMouseEnter(e, optionObj);
-				}}
-				onMouseLeave={e => {
-					props.onMouseLeave(e, optionObj);
+					if (!optionObj.isDisabled) props.onSelect(e, optionObj.label, optionObj);
 				}}
 			>
 				{props.isMultiSelect && renderTick(isSelectedOption, props.tick)}
