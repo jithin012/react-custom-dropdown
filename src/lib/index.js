@@ -390,16 +390,6 @@ export default class DropDown extends Component {
 			}
 		});
 	};
-	/**
-	 * may not necessary
-	 */
-	// hideOptionContainerOnHover = e => {
-	// 	if (this.isClickWithinDropdownWrapper(e.target)) {
-	// 		this.shouldOpen = true;
-	// 		this.hideSubMenu();
-	// 		this.hideOption(e.target);
-	// 	}
-	// };
 	getWrapperElement = event => {
 		let _target = event.target.parentElement;
 		let a = 0;
@@ -731,12 +721,8 @@ export default class DropDown extends Component {
 						this.onHeaderHover();
 					}}
 					onMouseEnter={this.props.shouldOpenOptionsOnhover ? this.toggleDropdown : null}
-					//onMouseLeave={this.props.shouldOpenOptionsOnhover ? this.hideOptionContainerOnHover : null}
 					ref={refs => {
 						this.headerRef = refs;
-						// hoverIntent(refs, () => {
-						// 	this.onTagHover();
-						// });
 					}}
 					style={{ width: typeof headerWidth !== 'undefined' ? headerWidth : '' }}
 				>
@@ -827,7 +813,7 @@ DropDown.defaultProps = {
 	removeOptionWhenSelected: false,
 	selectedOptionClass: '',
 	disabled: false,
-	shouldOpenOptionsOnhover: false
+	shouldOpenOptionsOnhover: true
 };
 DropDown.propTypes = {
 	defauleSelectTitle: PropTypes.string,
