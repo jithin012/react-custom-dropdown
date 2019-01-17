@@ -149,6 +149,7 @@
 .arrow-zone {
 	display: table-cell;
 	vertical-align: middle;
+	transition: transform 0.2s;
 	img {
 		width: 12px;
 		height: 7px;

@@ -557,8 +557,8 @@ export default class DropDown extends Component {
 			<div
 				className='arrow-zone'
 				style={{
-					width: this.props.arrow.width
-					//transform: this.state.shouldOpenOption ? 'rotate(180deg)' : 'rotate(0deg);'
+					width: this.props.arrow.width,
+					transform: this.state.shouldOpenOption ? 'rotate(180deg)' : 'rotate(0deg)'
 				}}
 			>
 				<Arrow fill={this.props.arrow.color} width={this.props.arrow.width} height={this.props.arrow.height} />
