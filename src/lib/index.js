@@ -16,7 +16,7 @@ export default class DropDown extends Component {
 			selectedMultiSelectLabel: '',
 			width: 0,
 			isCompletedMultiSelection: true,
-			shouldOpenOption: false
+			isOpen: false
 		};
 		this.wrapperRef = React.createRef();
 	}
@@ -35,7 +35,7 @@ export default class DropDown extends Component {
 	componentDidMount() {
 		this.listenClickoutsideEvent();
 		this.setPreselectedValue();
-		this.props.autoOpen && this.setState({ shouldOpenOption: true });
+		this.props.autoOpen && this.showOption();
 	}
 	componentWillReceiveProps(nextProps) {
 		this.setPreselectedValue(nextProps, () => {
@@ -43,7 +43,7 @@ export default class DropDown extends Component {
 		});
 	}
 	componentWillUnmount() {
-		document.removeEventListener('click', this.handleClickoutside.bind(this));
+		document.removeEventListener('click', this.handleClickoutside);
 	}
 	setPreselectedValue = (nextProps, callBack) => {
 		let _props = nextProps ? nextProps : this.props;
@@ -310,8 +310,7 @@ export default class DropDown extends Component {
 	};
 	hasTitleClass = targetObj => targetObj && targetObj.matches('.' + this.reservedClassNames.isTitle);
 	toggleDropdown = e => {
-		// this.onOpenOptions(item, this.props._key && this.props._key);
-		this.setState({ shouldOpenOption: !this.state.shouldOpenOption });
+		this.state.isOpen ? this.hideOption(e) : this.showOption(e);
 	};
 	isDropdownWrapper = arrayData => {
 		if ((arrayData && typeof arrayData === 'undefined') || arrayData === null) return 0;
@@ -321,21 +320,34 @@ export default class DropDown extends Component {
 		if (typeof arrayData === 'undefined') return 0;
 		return arrayData.value.indexOf(this.reservedClassNames.optionContainerClass) >= 0;
 	};
-	showOption = () => this.setState({ shouldOpenOption: true });
-	hideOption = () => this.setState({ shouldOpenOption: false });
+	showOption = e => {
+		if (!this.state.isOpen) {
+			this.onOpenOption(e);
+			this.setState({ isOpen: true });
+		}
+	};
+	hideOption = e => {
+		if (this.state.isOpen) {
+			this.onCloseOption();
+			this.setState({ isOpen: false });
+		}
+	};
 	/**
 	 * On open Event of the Options
 	 */
 	isFirstTimeOpen = true;
 	WidthRequiredToshow = 0;
-	onOpenOptions = (elem, _key) => {
+	onOpenOption = elem => {
 		if (this.props.autoWidthAdjust && this.isFirstTimeOpen) {
 			this.isFirstTimeOpen = false;
-			this.WidthRequiredToshow = elem.offsetWidth;
+			this.WidthRequiredToshow = elem && elem.offsetWidth;
 		}
 		this._tempMultiselectedOptions = Object.assign({}, this.state.selectedMultiSelectOptions);
 		this._tempMultiselectedLabel = this.state.selectedMultiSelectLabel;
-		typeof this.props.onOpenOption === 'function' && this.props.onOpenOption(_key);
+		typeof this.props.onOpenOption === 'function' && this.props.onOpenOption();
+	};
+	onCloseOption = () => {
+		typeof this.props.onCloseOption === 'function' && this.props.onCloseOption();
 	};
 	onSelect = (e, selectedLabel, selectedObj, parentObject) => {
 		if (!selectedObj.isTitle) {
@@ -550,7 +562,7 @@ export default class DropDown extends Component {
 				className='arrow-zone'
 				style={{
 					width: this.props.arrow.width,
-					transform: this.state.shouldOpenOption ? 'rotate(180deg)' : 'rotate(0deg)'
+					transform: this.state.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
 				}}
 			>
 				<Arrow fill={this.props.arrow.color} width={this.props.arrow.width} height={this.props.arrow.height} />
@@ -592,7 +604,7 @@ export default class DropDown extends Component {
 				<div
 					style={{
 						width: typeof optionContainerWidth !== 'undefined' ? optionContainerWidth : '',
-						display: this.state.shouldOpenOption ? 'block' : 'none'
+						display: this.state.isOpen ? 'block' : 'none'
 					}}
 					className={this.reservedClassNames.optionContainerClass + ' ' + this.props.optionContainerClass}
 				>
