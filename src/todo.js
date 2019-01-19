@@ -1,8 +1,6 @@
 /**
  * @todo
- * develop-grouping
  * handle click outside
- * Grouping With Accept Only One  : Error fixing
  * animation
  * good naming convensions
  * width
