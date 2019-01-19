@@ -1,8 +1,7 @@
 /**
  * @todo
- * handle click outside
- * preselected values(change != to !==)
  * grouping splitter
+ * preselected values(change != to !==)
  *
  * animation
  * good naming convensions
