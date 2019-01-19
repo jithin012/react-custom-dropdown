@@ -100,6 +100,8 @@ class App extends Component {
 								}}
 								onMultiSelectDone={data => console.log('data', data)}
 								shouldCloseOnSelectIfAcceptOne={true}
+								onOpenOption={() => console.log('On open')}
+								onCloseOption={() => console.log('on Close')}
 							/>
 						</div>
 						<div style={{ paddingLeft: '40px' }}>
