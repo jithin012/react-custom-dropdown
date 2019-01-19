@@ -201,6 +201,11 @@ export default class DropDown extends Component {
 		};
 	};
 	handleSelect = (label, tempObj, selectedObj) => {
+		if (this.props.shouldAcceptOneFromGroup && selectedObj.hasGroup) {
+			for (let selectedLabel in tempObj) {
+				if (tempObj[selectedLabel]['groupName'] === selectedObj.groupName) delete tempObj[selectedLabel];
+			}
+		}
 		tempObj[selectedObj.label] = selectedObj;
 		label = this.getLabelFromMultiselected(tempObj);
 		return {
@@ -611,6 +616,7 @@ DropDown.defaultProps = {
 	shouldUseMultiselectApplyBtn: false,
 	multiselectApplyBtnClass: '', // class for custom apply btn
 	multiselectApplyBtnLabel: 'Apply', // custom apply btn label
+	shouldAcceptOneFromGroup: false,
 
 	groupingSpillterRenderer: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
 	headerOptionSplitterRenderer: null, // fn: return jsx, on between header and option container
@@ -671,6 +677,7 @@ DropDown.propTypes = {
 	multiselectApplyBtnClass: PropTypes.string,
 	multiselectHeaderLabel: PropTypes.string,
 	multiSelectHeaderClearAllLabel: PropTypes.string,
+	shouldAcceptOneFromGroup: PropTypes.bool,
 	groupingSpillterRenderer: PropTypes.func,
 	headerOptionSplitterRenderer: PropTypes.func,
 	fixedTitle: PropTypes.func,
