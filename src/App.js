@@ -99,17 +99,12 @@ class App extends Component {
 								option={InputSample.groupingAcceptOnlyOne}
 								multiSelect={true}
 								isRequiredDefaultMultiselectDesign={false}
-								multiselectHeaderRenderer={() => <div />}
-								onMultiSelect={(label, SelectedObj) => {
-									console.log('label ', label, ' SelectedObj ', SelectedObj);
-								}}
-								onMultiSelectDone={data => console.log('data', data)}
-								shouldCloseOnSelectIfAcceptOne={true}
+								shouldAcceptOneFromGroup
 								onOpenOption={() => console.log('On open')}
 								onCloseOption={() => console.log('on Close')}
 							/>
 						</div>
-						<div style={{ paddingLeft: '40px' }}>
+						{/* <div style={{ paddingLeft: '40px' }}>
 							<h3>Grouping With Accept Only One and Accept Multiple</h3>
 							<DropDown
 								ref={this.child}
@@ -125,7 +120,7 @@ class App extends Component {
 									</div>
 								)}
 							/>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</div>
@@ -159,7 +154,6 @@ var InputSample = {
 	groupingAcceptOnlyOne: [
 		{
 			title: 'SORT BY',
-			acceptOnlyOne: true,
 			data: [
 				{ label: 'Latest First', value: 'Latest First' },
 				{ label: 'Oldest Frist', value: 'Oldest Frist' },
@@ -168,7 +162,6 @@ var InputSample = {
 		},
 		{
 			title: 'Timeframe filter',
-			acceptOnlyOne: true,
 			data: [
 				{ label: 'Today', value: 'Today' },
 				{ label: 'Yesterday', value: 'Yesterday' },
@@ -179,7 +172,6 @@ var InputSample = {
 	groupingAcceptOne_Multiple: [
 		{
 			title: 'SORT BY',
-			acceptOnlyOne: true,
 			data: [
 				{ label: 'Latest First', value: 'Latest First', disabled: true },
 				{ label: 'Oldest Frist', value: 'Oldest Frist' },
