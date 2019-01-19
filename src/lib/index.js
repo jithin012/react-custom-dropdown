@@ -186,7 +186,7 @@ export default class DropDown extends Component {
 		typeof this.props.onMultiSelect === 'function' &&
 			this.props.onMultiSelect(obj.label, obj.tempObj, this.props.dropDownRef);
 		if (this.props.shouldCloseOnSelectIfAcceptOne) {
-			this.hideAllOptions();
+			this.hideOption();
 		}
 	};
 	/**
@@ -243,7 +243,7 @@ export default class DropDown extends Component {
 		this.setState({
 			isCompletedMultiSelection: true
 		});
-		this.hideAllOptions();
+		this.hideOption();
 		typeof this.props.onMultiSelectDone === 'function' &&
 			this.props.onMultiSelectDone(
 				this.state.selectedMultiSelectOptions,
@@ -256,9 +256,7 @@ export default class DropDown extends Component {
 	/*************************************
 	 *          DROP DOWN
 	 *************************************/
-	listenClickoutsideEvent = () => {
-		document.addEventListener('click', this.handleClickoutside.bind(this));
-	};
+	listenClickoutsideEvent = () => document.addEventListener('click', this.handleClickoutside);
 	handleClickoutside = event => {
 		if (!this.hasTitleClass(event.target)) {
 			if (!this.isClickWithinDropdownWrapper(event.target)) {
@@ -278,19 +276,16 @@ export default class DropDown extends Component {
 							} else {
 								this.clearAllMultiSelect();
 							}
-							this.hideAllOptions();
+							this.hideOption();
 						}
 					} else {
-						this.hideAllOptions();
+						this.hideOption();
 					}
 				} else {
-					this.hideAllOptions();
+					this.hideOption();
 				}
 			}
 		}
-	};
-	hideAllOptions = () => {
-		this.setState({ shouldOpenOption: false });
 	};
 	isClickWithinDropdownWrapper = target => {
 		let maxLoopLimit = 15;
@@ -355,7 +350,7 @@ export default class DropDown extends Component {
 				});
 				typeof this.props.onSelect === 'function' &&
 					this.props.onSelect(e, selectedLabel, selectedObj, _key, parentObject);
-				this.hideAllOptions();
+				this.hideOption();
 			}
 		}
 	};
