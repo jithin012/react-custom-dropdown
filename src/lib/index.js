@@ -175,6 +175,7 @@ export default class DropDown extends Component {
 			selectedMultiSelectOptions: {},
 			selectedMultiSelectLabel: ''
 		});
+		this.emitOnselectIfMultiselect({});
 		typeof this.props.onClearAll == 'function' && this.props.onClearAll();
 	};
 	onMultiSelect = (selectedOptObj, e) => {
