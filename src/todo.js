@@ -1,13 +1,10 @@
 /**
  * @todo
- * onHover
- * default open - options
- *Arrow ROTATION ON open/close
  * issue on multi select --> select
- *  removeEventListener on component Will Unmount -- partially completed
  * Grouping With Accept Only One  : Error fixing
  * animation
- *
+ * good naming convensions
+ * width
  */
 /**
  * @todo next version --

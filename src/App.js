@@ -100,6 +100,8 @@ class App extends Component {
 								}}
 								onMultiSelectDone={data => console.log('data', data)}
 								shouldCloseOnSelectIfAcceptOne={true}
+								onOpenOption={() => console.log('On open')}
+								onCloseOption={() => console.log('on Close')}
 							/>
 						</div>
 						<div style={{ paddingLeft: '40px' }}>
@@ -127,7 +129,7 @@ class App extends Component {
 }
 var InputSample = {
 	simpleDropDown: [
-		{ label: 'MicroSoft Word', value: 'Microsoft Word' },
+		{ label: 'MicroSoft Word', value: 'Microsoft Word', subMenu: [{ label: 'sdsd', value: 'sdsdd' }] },
 		{ label: 'PageMaker', value: 'PageMaker' },
 		{ label: 'Different', value: 'Different' }
 	],

@@ -138,9 +138,6 @@
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 	z-index: 1;
 }
-.show {
-	display: block;
-}
 .group-splitter {
 	border: solid 1px rgba(60, 70, 116, 0.1);
 	margin: 0 auto;
@@ -152,6 +149,7 @@
 .arrow-zone {
 	display: table-cell;
 	vertical-align: middle;
+	transition: transform 0.2s;
 	img {
 		width: 12px;
 		height: 7px;
