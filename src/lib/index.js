@@ -326,11 +326,8 @@ export default class DropDown extends Component {
 		if (typeof arrayData === 'undefined') return 0;
 		return arrayData.value.indexOf(this.reservedClassNames.optionContainerClass) >= 0;
 	};
-	showOption = elem => {
-		elem.classList.add('show');
-	};
-	isOptionsVisible = elem => elem.classList.contains('show');
-	hideOption = elem => elem.classList.remove('show');
+	showOption = () => this.setState({ shouldOpenOption: true });
+	hideOption = () => this.setState({ shouldOpenOption: false });
 	/**
 	 * On open Event of the Options
 	 */
@@ -579,6 +576,8 @@ export default class DropDown extends Component {
 				ref={this.wrapperRef}
 				style={{ width: typeof wrapperwidth !== 'undefined' ? wrapperwidth : '' }}
 				className={this.reservedClassNames.wrapper + ' ' + this.props.wrapperClass}
+				onMouseEnter={this.props.shouldOpenOptionsOnhover ? this.showOption : null}
+				onMouseLeave={this.props.shouldOpenOptionsOnhover ? this.hideOption : null}
 			>
 				<div
 					className={headerClass}
@@ -586,7 +585,6 @@ export default class DropDown extends Component {
 					onMouseOver={event => {
 						this.onHeaderHover();
 					}}
-					onMouseEnter={this.props.shouldOpenOptionsOnhover ? this.toggleDropdown : null}
 					ref={refs => {
 						this.headerRef = refs;
 					}}
