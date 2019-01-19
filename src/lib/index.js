@@ -62,7 +62,6 @@ export default class DropDown extends Component {
 	 *      label: <label>,
 	 *      value: <value>,
 	 *      title: <titleName>,
-	 *      acceptOnlyOne: <acceptOnlyOne>
 	 *    },...]
 	 */
 	handlePreSelectedForMultiSelection = (_props, callBack) => {
@@ -83,8 +82,7 @@ export default class DropDown extends Component {
 						false,
 						[],
 						tempObj.title,
-						true,
-						tempObj.acceptOnlyOne
+						true
 					);
 				} else {
 					labelToShow += tempObj['label'] + ', ';
@@ -193,9 +191,6 @@ export default class DropDown extends Component {
 			isCompletedMultiSelection: !this.props.shouldUseMultiselectApplyBtn
 		});
 		this.emitOnselectIfMultiselect(obj.tempObj, e);
-		if (this.props.shouldCloseOnSelectIfAcceptOne) {
-			this.hideOption();
-		}
 	};
 	handleDeselect = (label, tempObj, selectedLabel) => {
 		delete tempObj[selectedLabel];
@@ -249,27 +244,18 @@ export default class DropDown extends Component {
 			if (!this.isClickWithinDropdownWrapper(event.target)) {
 				if (this.props.multiSelect) {
 					if (!this.state.isCompletedMultiSelection) {
-						/**
-						 * todo emitOnselectIfMultiselect
-						 */
-						if (this.props.shouldCloseOnSelectIfAcceptOne) {
+						if (!Utils.isEmptyObject(this._tempMultiselectedOptions)) {
 							this.setState({
-								isCompletedMultiSelection: true
+								isCompletedMultiSelection: true,
+								selectedMultiSelectOptions: this._tempMultiselectedOptions,
+								selectedMultiSelectLabel: this._tempMultiselectedLabel
 							});
 						} else {
-							if (!Utils.isEmptyObject(this._tempMultiselectedOptions)) {
-								this.setState({
-									isCompletedMultiSelection: true,
-									selectedMultiSelectOptions: this._tempMultiselectedOptions,
-									selectedMultiSelectLabel: this._tempMultiselectedLabel
-								});
-							} else {
-								this.clearAllMultiSelect();
-							}
-							this.props.shouldUseMultiselectApplyBtn &&
-								this.emitOnselectIfMultiselect(this._tempMultiselectedOptions);
-							this.hideOption();
+							this.clearAllMultiSelect();
 						}
+						this.props.shouldUseMultiselectApplyBtn &&
+							this.emitOnselectIfMultiselect(this._tempMultiselectedOptions);
+						this.hideOption();
 					} else {
 						this.hideOption();
 					}
@@ -633,7 +619,6 @@ DropDown.defaultProps = {
 	selectedValues: null, // It can be object or array. Use Object for single select and array of Object for multi select
 	shouldUseRadioBtn: false, // Radio btn is required or not For Single Select
 	isAlwaysOpen: false,
-	shouldCloseOnSelectIfAcceptOne: false, //close the drop down options when slect on a grouping. @Note Each grouping should be accept Only one
 	autoOpen: false,
 	shouldUseArrow: true,
 	selectedOptionColor: '#39BB9C',
@@ -694,7 +679,6 @@ DropDown.propTypes = {
 	tickRequiredForSingleSelect: PropTypes.bool,
 	shouldUseRadioBtn: PropTypes.bool,
 	isAlwaysOpen: PropTypes.bool,
-	shouldCloseOnSelectIfAcceptOne: PropTypes.bool,
 	autoOpen: PropTypes.bool,
 	shouldUseArrow: PropTypes.bool,
 	selectedOptionColor: PropTypes.string,

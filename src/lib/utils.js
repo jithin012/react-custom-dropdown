@@ -20,8 +20,6 @@
  *         {
  *           title: <titleName>,
  *           data: [{label : <label> , value: <value>,... }]
- *           hasGroup : true || false,
- *           acceptOnlyOne: true || false <accept only one value in the group>
  *         }, ...
  *      ]
  *
@@ -66,7 +64,6 @@ export const DataAnalyser = {
 		let eachObj = null;
 		let hasGroup = false;
 		let groupName = '';
-		let acceptOnlyOne = false;
 
 		for (let i = 0; i < arrLength; i++) {
 			eachObj = data[i];
@@ -78,8 +75,7 @@ export const DataAnalyser = {
 			if (eachObj['data'] !== undefined) {
 				hasGroup = true;
 				groupName = eachObj['title'];
-				acceptOnlyOne = eachObj['acceptOnlyOne'] || false;
-				returnArray.push(...DataAnalyser.processObjects(eachObj['data'], hasGroup, groupName, acceptOnlyOne));
+				returnArray.push(...DataAnalyser.processObjects(eachObj['data'], hasGroup, groupName));
 			}
 		}
 		return returnArray;
@@ -88,7 +84,7 @@ export const DataAnalyser = {
 	 * Each object is the format of "{label : <label> , value : <value>}"
 	 * @Note: grouping is only for level 1 data. For Inner JSON We don't have it right now
 	 */
-	processObjects: (arrayData, hasGroup = false, groupName = '', acceptOnlyOne = false) => {
+	processObjects: (arrayData, hasGroup = false, groupName = '') => {
 		let len = arrayData.length;
 		let newArr = [];
 		let _temp = {};
@@ -105,36 +101,19 @@ export const DataAnalyser = {
 				newArr.push(DataAnalyser.getStructuredData(label, value, _temp.disabled, true, subMenu));
 			} else {
 				if (hasGroup) {
-					if (acceptOnlyOne)
-						newArr.push(
-							DataAnalyser.getStructuredData(
-								label,
-								value,
-								_temp.disabled,
-								false,
-								[],
-								false,
-								hasGroup,
-								groupName,
-								acceptOnlyOne,
-								arrayData
-							)
-						);
-					else
-						newArr.push(
-							DataAnalyser.getStructuredData(
-								label,
-								value,
-								_temp.disabled,
-								false,
-								[],
-								false,
-								hasGroup,
-								groupName,
-								acceptOnlyOne,
-								arrayData
-							)
-						);
+					newArr.push(
+						DataAnalyser.getStructuredData(
+							label,
+							value,
+							_temp.disabled,
+							false,
+							[],
+							false,
+							hasGroup,
+							groupName,
+							arrayData
+						)
+					);
 				} else newArr.push(DataAnalyser.getStructuredData(label, value, _temp.disabled));
 			}
 		}
@@ -150,7 +129,6 @@ export const DataAnalyser = {
 		isTitle = false,
 		hasGroup = false,
 		groupName = '',
-		acceptOnlyOne = false,
 		groupEle = []
 	) => {
 		return {
@@ -162,7 +140,6 @@ export const DataAnalyser = {
 			isTitle: isTitle,
 			hasGroup: hasGroup,
 			groupName: groupName,
-			acceptOnlyOne: acceptOnlyOne,
 			groupEle: groupEle
 		};
 	},
