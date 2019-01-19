@@ -22,7 +22,7 @@ class App extends Component {
 					<div className='simpleDropdown' style={{ display: 'flex' }}>
 						<div>
 							<h3>A Simple Drop down</h3>
-							<DropDown option={InputSample.simpleDropDown} onSelect={(a, b, c) => console.log(c)} />
+							<DropDown option={InputSample.simpleDropDown} onSelect={(a, b) => console.log(a)} />
 						</div>
 						<div style={{ paddingLeft: '40px' }}>
 							<h3>A Simple Drop down With Tick sign</h3>
@@ -33,11 +33,17 @@ class App extends Component {
 							<DropDown option={InputSample.simpleDropDown} shouldUseRadioBtn={true} />
 						</div>
 					</div>
-					{/* Multi Selected Drop Down */}
+					{/*
+					 ******** Multi Selected Drop Down ******
+					 */}
 					<div className='multi-selected' style={{ display: 'flex', marginTop: '75px' }}>
 						<div>
 							<h3>A Multi Selected Drop Down</h3>
-							<DropDown option={InputSample.simpleDropDown} multiSelect={true} />
+							<DropDown
+								option={InputSample.simpleDropDown}
+								multiSelect={true}
+								onSelect={(a, b) => console.log(a)}
+							/>
 						</div>
 						<div style={{ paddingLeft: '40px' }}>
 							<h3>A Multi Selected Drop Down With Custom Header</h3>
@@ -58,7 +64,7 @@ class App extends Component {
 							<h3>Drop Down With Grouping</h3>
 							<DropDown
 								option={InputSample.groupingDropDown}
-								onSelect={(e, selectedLabel, selectedObj) => {
+								onSelect={selectedObj => {
 									console.log('On select ', selectedObj);
 								}}
 							/>
@@ -71,10 +77,9 @@ class App extends Component {
 								multiSelect={true}
 								isRequiredDefaultMultiselectDesign={false}
 								multiselectHeaderRenderer={() => <div />}
-								onMultiSelect={(label, SelectedObj) => {
-									console.log('label ', label, ' SelectedObj ', SelectedObj);
+								onSelect={selectedObj => {
+									console.log('On select ', selectedObj);
 								}}
-								onMultiSelectDone={data => console.log('data', data)}
 								multiselectBtnClass={'apply-btn'} // 'apply-btn' already defined in the 'SmartUpload' component
 								multiselectBtnLabel={'Apply Filter'}
 								multiselectBtnRenderer={() => (

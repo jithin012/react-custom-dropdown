@@ -23,7 +23,7 @@ const Option = props => {
 				}}
 				key={`${index}`}
 				onClick={e => {
-					if (!optionObj.isDisabled) props.onSelect(e, optionObj.label, optionObj);
+					if (!optionObj.isDisabled) props.onSelect(optionObj, e);
 				}}
 			>
 				{props.isMultiSelect && renderTick(isSelectedOption, props.tick)}

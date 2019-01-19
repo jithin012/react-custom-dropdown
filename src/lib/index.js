@@ -133,7 +133,7 @@ export default class DropDown extends Component {
 									key={index}
 									className={this.props.optionClass}
 									onClick={e => {
-										this.onSelect(e, submenuObj.label, submenuObj, selectedObj);
+										this.onSelect(submenuObj, e, selectedObj);
 									}}
 								>
 									{submenuObj.label}
@@ -149,6 +149,14 @@ export default class DropDown extends Component {
 	/*************************************
 	 *          MUlTI SELECT
 	 *************************************/
+	/**
+	 *  objects are store in selectedMultiSelectOptions of the state with format of
+	 *      {
+	 *          <selectedLabel> : <selectedObj>,
+	 *          <selectedLabel> : <selectedObj>...
+	 *      }
+	 *  also manage selectedMultiSelectLabel in the state
+	 */
 	clearAllMultiSelect = cb => {
 		this.setState(
 			{
@@ -169,44 +177,36 @@ export default class DropDown extends Component {
 		});
 		typeof this.props.onClearAll == 'function' && this.props.onClearAll();
 	};
-	onMultiSelect = (e, selectedLabel, selectedObj) => {
+	onMultiSelect = (selectedOptObj, e) => {
 		let tempObj = this.state.selectedMultiSelectOptions || {};
 		let label = this.state.selectedMultiSelectLabel;
 		let obj = {};
-		if (this.shouldDeselect(selectedObj)) {
-			obj = this.handleDeselect(label, tempObj, selectedLabel);
+		if (this.shouldDeselect(selectedOptObj)) {
+			obj = this.handleDeselect(label, tempObj, selectedOptObj.label);
 		} else {
-			obj = this.handleSelect(label, tempObj, selectedLabel, selectedObj);
+			obj = this.handleSelect(label, tempObj, selectedOptObj);
 		}
 		this.setState({
 			selectedMultiSelectOptions: obj.tempObj,
 			selectedMultiSelectLabel: obj.label,
 			isCompletedMultiSelection: !this.props.shouldUseMultiselectApplyBtn
 		});
-		typeof this.props.onMultiSelect === 'function' &&
-			this.props.onMultiSelect(obj.label, obj.tempObj, this.props.dropDownRef);
+		this.emitOnselectIfMultiselect(obj.tempObj, e);
 		if (this.props.shouldCloseOnSelectIfAcceptOne) {
 			this.hideOption();
 		}
 	};
-	/**
-	 *  if simple MultiSelect
-	 *      {
-	 *          <selectedLabel> : <selectedObj>,
-	 *          <selectedLabel> : <selectedObj>...
-	 *      }
-	 */
 	handleDeselect = (label, tempObj, selectedLabel) => {
 		delete tempObj[selectedLabel];
-		label = this.getLabelFromMultiselected(tempObj, false);
+		label = this.getLabelFromMultiselected(tempObj);
 		return {
 			label,
 			tempObj
 		};
 	};
-	handleSelect = (label, tempObj, selectedLabel, selectedObj) => {
-		tempObj[selectedLabel] = selectedObj;
-		label = this.getLabelFromMultiselected(tempObj, false);
+	handleSelect = (label, tempObj, selectedObj) => {
+		tempObj[selectedObj.label] = selectedObj;
+		label = this.getLabelFromMultiselected(tempObj);
 		return {
 			label,
 			tempObj
@@ -221,38 +221,24 @@ export default class DropDown extends Component {
 	};
 	shouldDeselect = selectedObj => {
 		if (Utils.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
-		let _tempStateObj = this.state.selectedMultiSelectOptions;
-		for (let label in _tempStateObj) {
-			if (_tempStateObj[label]['value'] === selectedObj['value']) {
-				return true;
-			}
-		}
-		return false;
+		return Object.keys(this.state.selectedMultiSelectOptions).indexOf(selectedObj.label) > -1;
 	};
 	hasInMultiSelected = selectedObj => {
 		if (Utils.isEmptyObject(this.state.selectedMultiSelectOptions)) return false;
-		let _tempStateObj = this.state.selectedMultiSelectOptions;
-		for (let label in _tempStateObj) {
-			if (_tempStateObj[label]['value'] === selectedObj['value']) {
-				return true;
-			}
-		}
-		return false;
+		return Object.keys(this.state.selectedMultiSelectOptions).indexOf(selectedObj.label) > -1;
 	};
 	onMultiSelectDone = e => {
 		this.setState({
 			isCompletedMultiSelection: true
 		});
 		this.hideOption();
-		typeof this.props.onMultiSelectDone === 'function' &&
-			this.props.onMultiSelectDone(
-				this.state.selectedMultiSelectOptions,
-				this.props.dropDownRef,
-				this.state.selectedMultiSelectLabel
-			);
+		this.emitOnselectIfMultiselect(this.state.selectedMultiSelectOptions, e);
 	};
 	_tempMultiselectedOptions = {};
 	_tempMultiselectedLabel = '';
+	emitOnselectIfMultiselect = (selectedObj, event) => {
+		typeof this.props.onSelect === 'function' && this.props.onSelect(selectedObj, event);
+	};
 	/*************************************
 	 *          DROP DOWN
 	 *************************************/
@@ -262,6 +248,9 @@ export default class DropDown extends Component {
 			if (!this.isClickWithinDropdownWrapper(event.target)) {
 				if (this.props.multiSelect) {
 					if (!this.state.isCompletedMultiSelection) {
+						/**
+						 * todo emitOnselectIfMultiselect
+						 */
 						if (this.props.shouldCloseOnSelectIfAcceptOne) {
 							this.setState({
 								isCompletedMultiSelection: true
@@ -276,6 +265,8 @@ export default class DropDown extends Component {
 							} else {
 								this.clearAllMultiSelect();
 							}
+							this.props.shouldUseMultiselectApplyBtn &&
+								this.emitOnselectIfMultiselect(this._tempMultiselectedOptions);
 							this.hideOption();
 						}
 					} else {
@@ -349,26 +340,21 @@ export default class DropDown extends Component {
 	onCloseOption = () => {
 		typeof this.props.onCloseOption === 'function' && this.props.onCloseOption();
 	};
-	onSelect = (e, selectedLabel, selectedObj, parentObject) => {
-		if (!selectedObj.isTitle) {
+	onSelect = (selectedOptObj, e, parentOptObj) => {
+		if (!selectedOptObj.isTitle) {
 			if (this.props.multiSelect) {
-				this.onMultiSelect(e, selectedLabel, selectedObj);
+				this.onMultiSelect(selectedOptObj, e);
 			} else {
 				let preSelectedOption = this.state.selectedOption;
-				let _key = this.props._key && this.props._key;
-				preSelectedOption !== selectedLabel && this.onChange(e, selectedLabel, _key, selectedObj, parentObject);
-				this.setState({
-					selectedOption: selectedLabel
-				});
-				typeof this.props.onSelect === 'function' &&
-					this.props.onSelect(e, selectedLabel, selectedObj, _key, parentObject);
+				preSelectedOption !== selectedOptObj.label && this.onChange(selectedOptObj, e, parentOptObj);
+				this.setState({ selectedOption: selectedOptObj.label });
+				typeof this.props.onSelect === 'function' && this.props.onSelect(selectedOptObj, e, parentOptObj);
 				this.hideOption();
 			}
 		}
 	};
-	onChange = (e, selectedLabel, _key, selectedObj, parentObject) =>
-		typeof this.props.onChange === 'function' &&
-		this.props.onChange(e, selectedLabel, _key, selectedObj, parentObject);
+	onChange = (selectedOptObj, e, parentOptObj) =>
+		typeof this.props.onChange === 'function' && this.props.onChange(selectedOptObj, e, parentOptObj);
 	onHeaderHover = e => {
 		typeof this.props.onHeaderHover === 'function' &&
 			this.props.onHeaderHover(this.state.selectedMultiSelectOptions, this.state.selectedOption);
@@ -419,6 +405,7 @@ export default class DropDown extends Component {
 									selectedMultiSelectLabel: obj.label,
 									isCompletedMultiSelection: true
 								});
+								this.emitOnselectIfMultiselect(obj.tempObj);
 							}}
 						/>
 						<span style={{ paddingLeft: '3px' }}>{selectedOption}</span>
@@ -638,12 +625,9 @@ DropDown.defaultProps = {
 	multiselectApplyBtnClass: '', // class for custom apply btn
 	multiselectApplyBtnLabel: 'Apply', // custom apply btn label
 
-	onMultiSelect: null, // fn:  Multi selected callback: call on each Selection:  Only if multiselected is true
-	onMultiSelectDone: null, // fn: multi selected callback: call after apply btn is Click.
 	groupingSpillterRenderer: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
 	headerOptionSplitterRenderer: null, // fn: return jsx, on between header and option container
 	fixedTitle: null,
-	dropDownRef: null,
 	onOpenOption: null,
 	selectedValues: null, // It can be object or array. Use Object for single select and array of Object for multi select
 	shouldUseRadioBtn: false, // Radio btn is required or not For Single Select
@@ -701,8 +685,6 @@ DropDown.propTypes = {
 	multiselectApplyBtnClass: PropTypes.string,
 	multiselectHeaderLabel: PropTypes.string,
 	multiSelectHeaderClearAllLabel: PropTypes.string,
-	onMultiSelect: PropTypes.func,
-	onMultiSelectDone: PropTypes.func,
 	groupingSpillterRenderer: PropTypes.func,
 	headerOptionSplitterRenderer: PropTypes.func,
 	fixedTitle: PropTypes.func,
