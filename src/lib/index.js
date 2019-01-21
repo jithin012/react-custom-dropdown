@@ -27,13 +27,11 @@ export default class DropDown extends Component {
 		this.setPreselectedValue();
 		this.props.autoOpen && this.showOption();
 	}
-	componentWillReceiveProps(nextProps) {
-		this.setPreselectedValue(nextProps, () => {
-			nextProps.shouldResetState && this.resetState();
-		});
-	}
 	componentWillUnmount() {
 		document.removeEventListener('click', this.handleClickoutside);
+	}
+	componentWillReceiveProps(nextProps) {
+		nextProps.shouldResetState && this.resetState();
 	}
 	setPreselectedValue = (nextProps, callBack) => {
 		let props = nextProps ? nextProps : this.props;
