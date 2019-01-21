@@ -14,6 +14,10 @@ var applyFilter = {
 	userSelect: 'none'
 };
 class App extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {};
+	}
 	render() {
 		return (
 			<div>
@@ -22,7 +26,11 @@ class App extends Component {
 					<div className='simpleDropdown' style={{ display: 'flex' }}>
 						<div>
 							<h3>A Simple Drop down</h3>
-							<DropDown option={InputSample.simpleDropDown} onSelect={(a, b) => console.log(a)} />
+							<DropDown
+								option={InputSample.simpleDropDown}
+								selectedValues={{ label: 'PageMaker', value: 'PageMaker' }}
+								onSelect={a => this.setState({ a })}
+							/>
 						</div>
 						<div style={{ paddingLeft: '40px' }}>
 							<h3>A Simple Drop down With Tick sign</h3>
@@ -104,23 +112,16 @@ class App extends Component {
 								onCloseOption={() => console.log('on Close')}
 							/>
 						</div>
-						{/* <div style={{ paddingLeft: '40px' }}>
-							<h3>Grouping With Accept Only One and Accept Multiple</h3>
+						<div style={{ paddingLeft: '40px' }}>
+							<h3>Empty options</h3>
 							<DropDown
-								ref={this.child}
-								option={InputSample.groupingAcceptOne_Multiple}
-								multiSelect={true}
-								onMultiSelect={(label, SelectedObj) => {
-									console.log('label ', label, ' SelectedObj ', SelectedObj);
+								onSelect={selectedObj => {
+									console.log('On select ', selectedObj);
 								}}
-								onMultiSelectDone={data => console.log('data', data)}
-								multiselectBtnRenderer={() => (
-									<div onClick={() => this.child.current.onMultiSelectDone()} style={applyFilter}>
-										Apply Filter
-									</div>
-								)}
+								//option={InputSample.groupingAcceptOnlyOne}
+								//shouldAcceptOneFromGroup
 							/>
-						</div> */}
+						</div>
 					</div>
 				</div>
 			</div>
