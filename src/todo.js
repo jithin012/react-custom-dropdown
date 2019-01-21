@@ -1,11 +1,9 @@
 /**
  * @todo
- * grouping splitter
- * preselected values(change != to !==)
+ * width
  *
  * animation
  * good naming convensions
- * width
  * reduce lines of code
  *
  * check size of react-select and compare with this
