@@ -32,6 +32,11 @@ export const DataAnalyser = {
 			data: [],
 			isMixWithTitle: false
 		};
+		// for empty option array
+		if (data.length === 0) {
+			returnObj.data.push(DataAnalyser.getStructuredData('<No Options>', 'no_value', true));
+			return returnObj;
+		}
 		// for type2
 		if (DataAnalyser.isSimpleArray(data)) {
 			returnObj.data = DataAnalyser.processSimpleArray(data);
@@ -87,25 +92,25 @@ export const DataAnalyser = {
 	processObjects: (arrayData, hasGroup = false, groupName = '') => {
 		let len = arrayData.length;
 		let newArr = [];
-		let _temp = {};
+		let temp = {};
 		let label = '';
 		let subMenu = [];
 		let value;
 		for (let i = 0; i < len; i++) {
 			subMenu = [];
-			_temp = arrayData[i];
-			label = _temp['label'];
-			value = _temp['value'];
-			if (DataAnalyser.hasSubmenu(_temp)) {
-				subMenu.push({ label: label, value: value, options: _temp.subMenu });
-				newArr.push(DataAnalyser.getStructuredData(label, value, _temp.disabled, true, subMenu));
+			temp = arrayData[i];
+			label = temp['label'];
+			value = temp['value'];
+			if (DataAnalyser.hasSubmenu(temp)) {
+				subMenu.push({ label: label, value: value, options: temp.subMenu });
+				newArr.push(DataAnalyser.getStructuredData(label, value, temp.disabled, true, subMenu));
 			} else {
 				if (hasGroup) {
 					newArr.push(
 						DataAnalyser.getStructuredData(
 							label,
 							value,
-							_temp.disabled,
+							temp.disabled,
 							false,
 							[],
 							false,
@@ -114,7 +119,7 @@ export const DataAnalyser = {
 							arrayData
 						)
 					);
-				} else newArr.push(DataAnalyser.getStructuredData(label, value, _temp.disabled));
+				} else newArr.push(DataAnalyser.getStructuredData(label, value, temp.disabled));
 			}
 		}
 		return newArr;
