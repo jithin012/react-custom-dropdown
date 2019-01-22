@@ -1,6 +1,8 @@
 .ddown-wrapper {
 	position: relative;
+	width: 250px;
 	.dropbtn {
+		width: 100%;
 		height: 36px;
 		overflow: hidden;
 		text-overflow: ellipsis;
