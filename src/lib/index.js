@@ -285,7 +285,7 @@ export default class DropDown extends Component {
 	};
 	isDropdownOptionContainer = arrayData => {
 		if (typeof arrayData === 'undefined') return 0;
-		return arrayData.value.indexOf(reservedClassNames.optionContainerClass) > -1;
+		return arrayData.value.indexOf(reservedClassNames.optionContainer) > -1;
 	};
 	showOption = e => {
 		if (!this.state.isOpen) {
@@ -351,7 +351,7 @@ export default class DropDown extends Component {
 			else return this.state.selectedOption;
 		}
 	};
-	renderPlaceholder = () => <span className='ddown-placeholder'>{this.props.defauleSelectTitle}</span>;
+	renderPlaceholder = () => <span className='rcd-placeholder'>{this.props.defauleSelectTitle}</span>;
 	/**
 	 * title to show in case of multi select; contain close btn
 	 */
@@ -361,7 +361,7 @@ export default class DropDown extends Component {
 			let titleToRender = [];
 			selectedOptionsArray.map(selectedOption => {
 				titleToRender.push(
-					<span key={selectedOption} className='option-selected'>
+					<span key={selectedOption} className='rcd-multi-selected'>
 						<Cross
 							height={this.props.cross.width}
 							width={this.props.cross.height}
@@ -428,7 +428,7 @@ export default class DropDown extends Component {
 					shouldUseRadioBtn={this.props.shouldUseRadioBtn}
 					onMouseOver={this.onOptionHover}
 					onSelect={this.onSelect}
-					defaultOptionClass={reservedClassNames.optionClass}
+					defaultOptionClass={reservedClassNames.option}
 					autoWidthAdjust={this.props.autoWidthAdjust}
 				/>
 			</Fragment>
@@ -439,7 +439,7 @@ export default class DropDown extends Component {
 			? this.hasInMultiSelected(currentObj)
 			: currentObj.label === this.state.selectedOption;
 	};
-	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='group-splitter' />;
+	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='rcd-group-divider' />;
 	makeListAsOption = (arrayData, isMixWithTitle) => {
 		let customClasses = '';
 		let mainMenuList = null;
@@ -506,7 +506,7 @@ export default class DropDown extends Component {
 	render() {
 		const dataObj = DataAnalyser.analyseInput(this.props.option, this.props.selectedValues);
 		const listObj = this.makeListAsOption(dataObj.data, dataObj.isMixWithTitle);
-		let headerClass = reservedClassNames.dropbtn;
+		let headerClass = reservedClassNames.header;
 		headerClass += this.isMultiSelect() ? ' label-multi-table ' : ' label-single-center ';
 		headerClass += this.props.headerClass ? this.props.headerClass : '';
 		return (
@@ -534,7 +534,7 @@ export default class DropDown extends Component {
 					style={{
 						display: this.state.isOpen ? 'block' : 'none'
 					}}
-					className={reservedClassNames.optionContainerClass + ' ' + this.props.optionContainerClass}
+					className={reservedClassNames.optionContainer + ' ' + this.props.optionContainerClass}
 				>
 					{listObj.mainMenuList}
 				</div>

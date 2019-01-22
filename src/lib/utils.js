@@ -172,12 +172,11 @@ export const KeyGenerator = (function() {
  * Some reserved classname used in this component
  */
 export const reservedClassNames = {
-	wrapper: 'ddown-wrapper',
-	dropbtn: 'dropbtn',
-	optionContainerClass: 'dropdown-content',
-	optionClass: 'd-down-option',
-	submenuClass: 'ddown-submenu',
-	show: 'show',
+	wrapper: 'rcd-wrapper',
+	header: 'rcd-header',
+	optionContainer: 'rcd-option-container',
+	option: 'rcd-option',
+	submenu: 'rcd-submenu',
 	isSubMenu: 'is-submenu',
 	isTitle: 'is-title'
 };
