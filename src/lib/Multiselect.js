@@ -13,9 +13,9 @@ const renderHeader = props => {
 	if (typeof props.optionHeaderer === 'function') return props.optionHeaderer();
 	if (props.shouldUseMultiselectOptionHeader) {
 		return (
-			<div className='ddown-multisel-header'>
-				<div className='ddown-multisel-header-label'>{props.multiselectHeaderLabel}</div>
-				<div className='ddown-multisel-header-clear-all' onClick={props.onClickClearAll}>
+			<div className='rcd-option-header'>
+				<div className='rcd-option-header-label'>{props.multiselectHeaderLabel}</div>
+				<div className='rcd-option-header-clear-all' onClick={props.onClickClearAll}>
 					{props.multiSelectHeaderClearAllLabel}
 				</div>
 			</div>
@@ -24,8 +24,8 @@ const renderHeader = props => {
 };
 const renderApplyBtn = props => {
 	let className = props.multiselectApplyBtnClass
-		? `ddown-mutilsel-btn ${props.multiselectApplyBtnClass}`
-		: 'ddown-mutilsel-btn';
+		? `rcd-apply-btn ${props.multiselectApplyBtnClass}`
+		: 'rcd-apply-btn';
 	return (
 		<div className={className} onClick={props.onMultiSelectDone}>
 			{props.multiselectApplyBtnLabel ? props.multiselectApplyBtnLabel : 'APPLY'}

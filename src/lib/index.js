@@ -285,7 +285,7 @@ export default class DropDown extends Component {
 	};
 	isDropdownOptionContainer = arrayData => {
 		if (typeof arrayData === 'undefined') return 0;
-		return arrayData.value.indexOf(reservedClassNames.optionContainerClass) > -1;
+		return arrayData.value.indexOf(reservedClassNames.optionContainer) > -1;
 	};
 	showOption = e => {
 		if (!this.state.isOpen) {
@@ -351,7 +351,7 @@ export default class DropDown extends Component {
 			else return this.state.selectedOption;
 		}
 	};
-	renderPlaceholder = () => <span className='ddown-placeholder'>{this.props.defauleSelectTitle}</span>;
+	renderPlaceholder = () => <span className='rcd-placeholder'>{this.props.defauleSelectTitle}</span>;
 	/**
 	 * title to show in case of multi select; contain close btn
 	 */
@@ -361,7 +361,7 @@ export default class DropDown extends Component {
 			let titleToRender = [];
 			selectedOptionsArray.map(selectedOption => {
 				titleToRender.push(
-					<span key={selectedOption} className='option-selected'>
+					<span key={selectedOption} className='rcd-multi-selected'>
 						<Cross
 							height={this.props.cross.width}
 							width={this.props.cross.height}
@@ -412,25 +412,6 @@ export default class DropDown extends Component {
 		typeof this.props.onOptionHover === 'function' && this.props.onOptionHover(e, selectedObj);
 	};
 	onOptionMouseEnter = (e, selectedObj) => {};
-	/**
-	 *
-	 * decide the wrapper width
-	 *  if 'autoWidthAdjust' set false; expect coming 'wrapperClass' may set the width. If not set the width make default width to be '200px'
-	 *  if 'autoWidthAdjust' is true; get the lognest string in the options and set width to "auto"
-	 *
-	 */
-	getWrapperwidth = () => {
-		const DEFAULT_WIDTH = '200px';
-		if (this.props.autoWidthAdjust && Utils.isEmptyString(this.props.wrapperClass)) {
-			return DEFAULT_WIDTH;
-		}
-		if (!this.props.autoWidthAdjust && Utils.isEmptyString(this.props.wrapperClass)) return DEFAULT_WIDTH;
-		return undefined;
-	};
-	getHeaderWidth = () => (this.props.autoWidthAdjust && '100%') || undefined;
-	getOptionContainerWidth = () => {
-		return (this.props.autoWidthAdjust && !this.isFirstTimeOpen && this.WidthRequiredToshow) || undefined;
-	};
 	isMultiSelect = () => this.props.multiSelect;
 	getOptionToRender = (currentObj, classes, isMixWithTitle, index, isSelectedOption) => {
 		return (
@@ -447,7 +428,7 @@ export default class DropDown extends Component {
 					shouldUseRadioBtn={this.props.shouldUseRadioBtn}
 					onMouseOver={this.onOptionHover}
 					onSelect={this.onSelect}
-					defaultOptionClass={reservedClassNames.optionClass}
+					defaultOptionClass={reservedClassNames.option}
 					autoWidthAdjust={this.props.autoWidthAdjust}
 				/>
 			</Fragment>
@@ -458,7 +439,7 @@ export default class DropDown extends Component {
 			? this.hasInMultiSelected(currentObj)
 			: currentObj.label === this.state.selectedOption;
 	};
-	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='group-splitter' />;
+	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='rcd-group-divider' />;
 	makeListAsOption = (arrayData, isMixWithTitle) => {
 		let customClasses = '';
 		let mainMenuList = null;
@@ -525,16 +506,12 @@ export default class DropDown extends Component {
 	render() {
 		const dataObj = DataAnalyser.analyseInput(this.props.option, this.props.selectedValues);
 		const listObj = this.makeListAsOption(dataObj.data, dataObj.isMixWithTitle);
-		const wrapperwidth = this.getWrapperwidth();
-		const headerWidth = this.getHeaderWidth();
-		const optionContainerWidth = this.getOptionContainerWidth();
-		let headerClass = reservedClassNames.dropbtn;
+		let headerClass = reservedClassNames.header;
 		headerClass += this.isMultiSelect() ? ' label-multi-table ' : ' label-single-center ';
 		headerClass += this.props.headerClass ? this.props.headerClass : '';
 		return (
 			<div
 				ref={this.wrapperRef}
-				style={{ width: typeof wrapperwidth !== 'undefined' ? wrapperwidth : '' }}
 				className={reservedClassNames.wrapper + ' ' + this.props.wrapperClass}
 				onMouseEnter={this.props.shouldOpenOptionsOnhover ? this.showOption : null}
 				onMouseLeave={this.props.shouldOpenOptionsOnhover ? this.hideOption : null}
@@ -548,7 +525,6 @@ export default class DropDown extends Component {
 					ref={refs => {
 						this.headerRef = refs;
 					}}
-					style={{ width: typeof headerWidth !== 'undefined' ? headerWidth : '' }}
 				>
 					{this.renderHeader()}
 					{this.props.shouldUseArrow && this.renderArrow()}
@@ -556,10 +532,9 @@ export default class DropDown extends Component {
 				{this.props.headerOptionSplitterRenderer && this.props.headerOptionSplitterRenderer()}
 				<div
 					style={{
-						width: typeof optionContainerWidth !== 'undefined' ? optionContainerWidth : '',
 						display: this.state.isOpen ? 'block' : 'none'
 					}}
-					className={reservedClassNames.optionContainerClass + ' ' + this.props.optionContainerClass}
+					className={reservedClassNames.optionContainer + ' ' + this.props.optionContainerClass}
 				>
 					{listObj.mainMenuList}
 				</div>

@@ -9,11 +9,11 @@ const Option = props => {
 	if (optionObj.isTitle) {
 		return renderTitleAsOptions(classes, optionObj, index);
 	} else {
-		let className = 'option-holder-wrapper';
+		let className = 'rcd-singly-option-wrapper';
 		if (isMultiSelect || props.tickRequiredForSingleSelect || props.shouldUseRadioBtn || isMixWithTitle)
-			className = className + ' option-holder';
+			className = className + ' rcd-option-holder';
 		if (props.removeOptionWhenSelected && props.isSelectedOption) className = className + ' no-display';
-		if (optionObj.isDisabled) classes += ' option-holder-disabled';
+		if (optionObj.isDisabled) classes += ' rcd-option-disable';
 		if (isSelectedOption) classes += ' font-bold ' + props.selectedOptionClass;
 		return (
 			<div
