@@ -175,6 +175,7 @@ export const reservedClassNames = {
 	wrapper: 'rcd-wrapper',
 	header: 'rcd-header',
 	optionContainer: 'rcd-option-container',
+	eachOptionWrapper: 'rcd-each-option-wrapper',
 	option: 'rcd-option',
 	submenu: 'rcd-submenu',
 	isSubMenu: 'is-submenu',

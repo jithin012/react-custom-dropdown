@@ -117,13 +117,10 @@
 		box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 		z-index: 1;
 	}
-	.rcd-singly-option-wrapper {
+	.rcd-each-option-wrapper {
 		padding-left: 15px;
 		padding-top: 5px;
 		padding-bottom: 5px;
-		&:hover {
-			background-image: linear-gradient(278deg, #f5fcff, #d8eff8);
-		}
 		.font-bold {
 			font-weight: bold;
 		}

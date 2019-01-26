@@ -409,11 +409,35 @@ export default class DropDown extends Component {
 		}
 	};
 	onOptionHover = (e, selectedObj) => {
-		typeof this.props.onOptionHover === 'function' && this.props.onOptionHover(e, selectedObj);
+		let node = this.getEachOptionWrapperNode(e.target);
+		if (node) node.style.background = this.props.optionHoverColor;
+		typeof this.props.onOptionHover === 'function' && this.props.onOptionHover(node, selectedObj);
+	};
+	onOptionOut = e => {
+		let node = this.getEachOptionWrapperNode(e.target);
+		if (node) node.style.removeProperty('background');
+	};
+	getEachOptionWrapperNode = target => {
+		const maxLoopLimit = 5;
+		if (this.isEachOptionWrapper(target && target.classList)) return target;
+		let temp = target;
+		if (temp) {
+			for (let i = 0; i < maxLoopLimit; i++) {
+				temp = temp && temp.parentElement;
+				if (this.isEachOptionWrapper(temp && temp.classList)) {
+					return temp;
+				}
+			}
+		}
+		return 0;
+	};
+	isEachOptionWrapper = arrayData => {
+		if (typeof arrayData === 'undefined') return 0;
+		return arrayData.value.indexOf(reservedClassNames.eachOptionWrapper) > -1;
 	};
 	onOptionMouseEnter = (e, selectedObj) => {};
 	isMultiSelect = () => this.props.multiSelect;
-	getOptionToRender = (currentObj, classes, isMixWithTitle, index, isSelectedOption) => {
+	getOptionToRender = (currentObj, classes, isMixWithTitle, index, isSelectedOption, arrLength) => {
 		return (
 			<Fragment key={index}>
 				<Option
@@ -427,10 +451,15 @@ export default class DropDown extends Component {
 					tickRequiredForSingleSelect={this.props.tickRequiredForSingleSelect}
 					shouldUseRadioBtn={this.props.shouldUseRadioBtn}
 					onMouseOver={this.onOptionHover}
+					onMouseOut={this.onOptionOut}
 					onSelect={this.onSelect}
 					defaultOptionClass={reservedClassNames.option}
 					autoWidthAdjust={this.props.autoWidthAdjust}
 				/>
+				{!currentObj.isTitle &&
+					index !== arrLength - 1 &&
+					typeof this.props.optionDivider === 'function' &&
+					this.props.optionDivider()}
 			</Fragment>
 		);
 	};
@@ -439,13 +468,13 @@ export default class DropDown extends Component {
 			? this.hasInMultiSelected(currentObj)
 			: currentObj.label === this.state.selectedOption;
 	};
-	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='rcd-group-divider' />;
+	getDefaultGroupDivider = () => <div key={KeyGenerator.getNew()} className='rcd-group-divider' />;
 	makeListAsOption = (arrayData, isMixWithTitle) => {
 		let customClasses = '';
 		let mainMenuList = null;
 		let subMenuList = {};
 		const arrLength = arrayData.length;
-		let groupingSplitter = null;
+		let groupDivider = null;
 		let isSelectedOption = false;
 		mainMenuList = arrayData.map((currentObj, index) => {
 			this.checkLongestString(currentObj.label);
@@ -460,16 +489,29 @@ export default class DropDown extends Component {
 				customClasses = this.props.optionClass;
 			}
 			if (currentObj.isTitle && index !== 0 && index !== arrLength - 1) {
-				groupingSplitter =
-					(typeof this.props.groupingSpillterRenderer == 'function' &&
-						this.props.groupingSpillterRenderer()) ||
-					this.getDefaultGroupingSplitter();
+				groupDivider =
+					(typeof this.props.groupDivider === 'function' && this.props.groupDivider()) ||
+					this.getDefaultGroupDivider();
 				return [
-					groupingSplitter,
-					this.getOptionToRender(currentObj, customClasses, isMixWithTitle, index, isSelectedOption)
+					groupDivider,
+					this.getOptionToRender(
+						currentObj,
+						customClasses,
+						isMixWithTitle,
+						index,
+						isSelectedOption,
+						arrLength
+					)
 				];
 			}
-			return this.getOptionToRender(currentObj, customClasses, isMixWithTitle, index, isSelectedOption);
+			return this.getOptionToRender(
+				currentObj,
+				customClasses,
+				isMixWithTitle,
+				index,
+				isSelectedOption,
+				arrLength
+			);
 		});
 		if (this.props.multiSelect) {
 			mainMenuList = (
@@ -529,7 +571,9 @@ export default class DropDown extends Component {
 					{this.renderHeader()}
 					{this.props.shouldUseArrow && this.renderArrow()}
 				</div>
-				{this.props.headerOptionSplitterRenderer && this.props.headerOptionSplitterRenderer()}
+				{this.state.isOpen &&
+					typeof this.props.headerOptionDivider === 'function' &&
+					this.props.headerOptionDivider()}
 				<div
 					style={{
 						display: this.state.isOpen ? 'block' : 'none'
@@ -567,8 +611,8 @@ DropDown.defaultProps = {
 	multiselectApplyBtnLabel: 'Apply', // custom apply btn label
 	shouldAcceptOneFromGroup: false,
 
-	groupingSpillterRenderer: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
-	headerOptionSplitterRenderer: null, // fn: return jsx, on between header and option container
+	groupDivider: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
+	headerOptionDivider: null, // fn: return jsx, on between header and option container
 	fixedTitle: null,
 	onOpenOption: null,
 	selectedValues: null, // It can be object or array. Use Object for single select and array of Object for multi select
@@ -604,7 +648,9 @@ DropDown.defaultProps = {
 	removeOptionWhenSelected: false,
 	selectedOptionClass: '',
 	disabled: false,
-	shouldOpenOptionsOnhover: false
+	shouldOpenOptionsOnhover: false,
+	optionHoverColor: '#d8eff8',
+	optionDivider: null
 };
 DropDown.propTypes = {
 	defauleSelectTitle: PropTypes.string,
@@ -627,8 +673,8 @@ DropDown.propTypes = {
 	multiselectHeaderLabel: PropTypes.string,
 	multiSelectHeaderClearAllLabel: PropTypes.string,
 	shouldAcceptOneFromGroup: PropTypes.bool,
-	groupingSpillterRenderer: PropTypes.func,
-	headerOptionSplitterRenderer: PropTypes.func,
+	groupDivider: PropTypes.func,
+	headerOptionDivider: PropTypes.func,
 	fixedTitle: PropTypes.func,
 	dropDownRef: PropTypes.string,
 	onOpenOption: PropTypes.func,
@@ -644,5 +690,7 @@ DropDown.propTypes = {
 	selectedOptionClass: PropTypes.string,
 	tick: PropTypes.object,
 	disabled: PropTypes.bool,
-	shouldOpenOptionsOnhover: PropTypes.bool
+	shouldOpenOptionsOnhover: PropTypes.bool,
+	optionHoverColor: PropTypes.string,
+	optionDivider: PropTypes.func
 };
