@@ -52,6 +52,7 @@ const renderTitleAsOptions = (classes, optionObj, index) => {
 };
 
 const renderOptionLabel = (labelName, autoWidthAdjust) => {
+	return labelName;
 	if (labelName.length > 19 && autoWidthAdjust) {
 		return <ToolTip text={labelName}>{labelName.substr(0, 16) + '... '}</ToolTip>;
 	} else {
