@@ -468,13 +468,13 @@ export default class DropDown extends Component {
 			? this.hasInMultiSelected(currentObj)
 			: currentObj.label === this.state.selectedOption;
 	};
-	getDefaultGroupingSplitter = () => <div key={KeyGenerator.getNew()} className='rcd-group-divider' />;
+	getDefaultGroupDivider = () => <div key={KeyGenerator.getNew()} className='rcd-group-divider' />;
 	makeListAsOption = (arrayData, isMixWithTitle) => {
 		let customClasses = '';
 		let mainMenuList = null;
 		let subMenuList = {};
 		const arrLength = arrayData.length;
-		let groupingSplitter = null;
+		let groupDivider = null;
 		let isSelectedOption = false;
 		mainMenuList = arrayData.map((currentObj, index) => {
 			this.checkLongestString(currentObj.label);
@@ -489,12 +489,11 @@ export default class DropDown extends Component {
 				customClasses = this.props.optionClass;
 			}
 			if (currentObj.isTitle && index !== 0 && index !== arrLength - 1) {
-				groupingSplitter =
-					(typeof this.props.groupingSpillterRenderer == 'function' &&
-						this.props.groupingSpillterRenderer()) ||
-					this.getDefaultGroupingSplitter();
+				groupDivider =
+					(typeof this.props.groupDivider === 'function' && this.props.groupDivider()) ||
+					this.getDefaultGroupDivider();
 				return [
-					groupingSplitter,
+					groupDivider,
 					this.getOptionToRender(
 						currentObj,
 						customClasses,
@@ -572,7 +571,9 @@ export default class DropDown extends Component {
 					{this.renderHeader()}
 					{this.props.shouldUseArrow && this.renderArrow()}
 				</div>
-				{this.props.headerOptionSplitterRenderer && this.props.headerOptionSplitterRenderer()}
+				{this.state.isOpen &&
+					typeof this.props.headerOptionDivider === 'function' &&
+					this.props.headerOptionDivider()}
 				<div
 					style={{
 						display: this.state.isOpen ? 'block' : 'none'
@@ -610,8 +611,8 @@ DropDown.defaultProps = {
 	multiselectApplyBtnLabel: 'Apply', // custom apply btn label
 	shouldAcceptOneFromGroup: false,
 
-	groupingSpillterRenderer: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
-	headerOptionSplitterRenderer: null, // fn: return jsx, on between header and option container
+	groupDivider: null, // fn: return jsx, on between each group in the option: render just b4 title except first and last element
+	headerOptionDivider: null, // fn: return jsx, on between header and option container
 	fixedTitle: null,
 	onOpenOption: null,
 	selectedValues: null, // It can be object or array. Use Object for single select and array of Object for multi select
@@ -672,8 +673,8 @@ DropDown.propTypes = {
 	multiselectHeaderLabel: PropTypes.string,
 	multiSelectHeaderClearAllLabel: PropTypes.string,
 	shouldAcceptOneFromGroup: PropTypes.bool,
-	groupingSpillterRenderer: PropTypes.func,
-	headerOptionSplitterRenderer: PropTypes.func,
+	groupDivider: PropTypes.func,
+	headerOptionDivider: PropTypes.func,
 	fixedTitle: PropTypes.func,
 	dropDownRef: PropTypes.string,
 	onOpenOption: PropTypes.func,
