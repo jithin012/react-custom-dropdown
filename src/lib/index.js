@@ -437,7 +437,7 @@ export default class DropDown extends Component {
 	};
 	onOptionMouseEnter = (e, selectedObj) => {};
 	isMultiSelect = () => this.props.multiSelect;
-	getOptionToRender = (currentObj, classes, isMixWithTitle, index, isSelectedOption) => {
+	getOptionToRender = (currentObj, classes, isMixWithTitle, index, isSelectedOption, arrLength) => {
 		return (
 			<Fragment key={index}>
 				<Option
@@ -456,6 +456,10 @@ export default class DropDown extends Component {
 					defaultOptionClass={reservedClassNames.option}
 					autoWidthAdjust={this.props.autoWidthAdjust}
 				/>
+				{!currentObj.isTitle &&
+					index !== arrLength - 1 &&
+					typeof this.props.optionDivider === 'function' &&
+					this.props.optionDivider()}
 			</Fragment>
 		);
 	};
@@ -491,10 +495,24 @@ export default class DropDown extends Component {
 					this.getDefaultGroupingSplitter();
 				return [
 					groupingSplitter,
-					this.getOptionToRender(currentObj, customClasses, isMixWithTitle, index, isSelectedOption)
+					this.getOptionToRender(
+						currentObj,
+						customClasses,
+						isMixWithTitle,
+						index,
+						isSelectedOption,
+						arrLength
+					)
 				];
 			}
-			return this.getOptionToRender(currentObj, customClasses, isMixWithTitle, index, isSelectedOption);
+			return this.getOptionToRender(
+				currentObj,
+				customClasses,
+				isMixWithTitle,
+				index,
+				isSelectedOption,
+				arrLength
+			);
 		});
 		if (this.props.multiSelect) {
 			mainMenuList = (
@@ -630,7 +648,8 @@ DropDown.defaultProps = {
 	selectedOptionClass: '',
 	disabled: false,
 	shouldOpenOptionsOnhover: false,
-	optionHoverColor: '#d8eff8'
+	optionHoverColor: '#d8eff8',
+	optionDivider: null
 };
 DropDown.propTypes = {
 	defauleSelectTitle: PropTypes.string,
@@ -671,5 +690,6 @@ DropDown.propTypes = {
 	tick: PropTypes.object,
 	disabled: PropTypes.bool,
 	shouldOpenOptionsOnhover: PropTypes.bool,
-	optionHoverColor: PropTypes.string
+	optionHoverColor: PropTypes.string,
+	optionDivider: PropTypes.func
 };
