@@ -409,7 +409,31 @@ export default class DropDown extends Component {
 		}
 	};
 	onOptionHover = (e, selectedObj) => {
-		typeof this.props.onOptionHover === 'function' && this.props.onOptionHover(e, selectedObj);
+		let node = this.getEachOptionWrapperNode(e.target);
+		if (node) node.style.background = this.props.optionHoverColor;
+		typeof this.props.onOptionHover === 'function' && this.props.onOptionHover(node, selectedObj);
+	};
+	onOptionOut = e => {
+		let node = this.getEachOptionWrapperNode(e.target);
+		if (node) node.style.removeProperty('background');
+	};
+	getEachOptionWrapperNode = target => {
+		const maxLoopLimit = 5;
+		if (this.isEachOptionWrapper(target && target.classList)) return target;
+		let temp = target;
+		if (temp) {
+			for (let i = 0; i < maxLoopLimit; i++) {
+				temp = temp && temp.parentElement;
+				if (this.isEachOptionWrapper(temp && temp.classList)) {
+					return temp;
+				}
+			}
+		}
+		return 0;
+	};
+	isEachOptionWrapper = arrayData => {
+		if (typeof arrayData === 'undefined') return 0;
+		return arrayData.value.indexOf(reservedClassNames.eachOptionWrapper) > -1;
 	};
 	onOptionMouseEnter = (e, selectedObj) => {};
 	isMultiSelect = () => this.props.multiSelect;
@@ -427,6 +451,7 @@ export default class DropDown extends Component {
 					tickRequiredForSingleSelect={this.props.tickRequiredForSingleSelect}
 					shouldUseRadioBtn={this.props.shouldUseRadioBtn}
 					onMouseOver={this.onOptionHover}
+					onMouseOut={this.onOptionOut}
 					onSelect={this.onSelect}
 					defaultOptionClass={reservedClassNames.option}
 					autoWidthAdjust={this.props.autoWidthAdjust}
@@ -604,7 +629,8 @@ DropDown.defaultProps = {
 	removeOptionWhenSelected: false,
 	selectedOptionClass: '',
 	disabled: false,
-	shouldOpenOptionsOnhover: false
+	shouldOpenOptionsOnhover: false,
+	optionHoverColor: '#d8eff8'
 };
 DropDown.propTypes = {
 	defauleSelectTitle: PropTypes.string,
@@ -644,5 +670,6 @@ DropDown.propTypes = {
 	selectedOptionClass: PropTypes.string,
 	tick: PropTypes.object,
 	disabled: PropTypes.bool,
-	shouldOpenOptionsOnhover: PropTypes.bool
+	shouldOpenOptionsOnhover: PropTypes.bool,
+	optionHoverColor: PropTypes.string
 };

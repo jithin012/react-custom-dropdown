@@ -9,7 +9,7 @@ const Option = props => {
 	if (optionObj.isTitle) {
 		return renderTitleAsOptions(classes, optionObj, index);
 	} else {
-		let className = 'rcd-singly-option-wrapper';
+		let className = 'rcd-each-option-wrapper';
 		if (isMultiSelect || props.tickRequiredForSingleSelect || props.shouldUseRadioBtn || isMixWithTitle)
 			className = className + ' rcd-option-holder';
 		if (props.removeOptionWhenSelected && props.isSelectedOption) className = className + ' no-display';
@@ -18,9 +18,8 @@ const Option = props => {
 		return (
 			<div
 				className={className}
-				onMouseOver={e => {
-					props.onMouseOver(e, optionObj);
-				}}
+				onMouseOver={e => props.onMouseOver(e, optionObj)}
+				onMouseOut={e => props.onMouseOut(e, optionObj)}
 				key={`${index}`}
 				onClick={e => {
 					if (!optionObj.isDisabled) props.onSelect(optionObj, e);
