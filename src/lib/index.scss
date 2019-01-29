@@ -96,6 +96,7 @@
 		padding: 2px;
 		border: 1px solid rgba(0, 126, 255, 0.24);
 		background-color: rgba(0, 126, 255, 0.08);
+		border-radius: 5px;
 	}
 	.no-display {
 		display: none;
@@ -135,7 +136,6 @@
 	}
 	.rcd-option-container {
 		background-color: #ffffff;
-		display: none;
 		position: absolute;
 		overflow: auto;
 		width: 100%;
