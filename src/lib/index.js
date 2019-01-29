@@ -576,7 +576,9 @@ export default class DropDown extends Component {
 					this.props.headerOptionDivider()}
 				<div
 					style={{
-						display: this.state.isOpen ? 'block' : 'none'
+						visibility: this.state.isOpen ? 'visible' : 'hidden',
+
+						transition: this.state.isOpen ? 'visibility 0ms linear 100ms' : 'visibility 0s linear 10ms'
 					}}
 					className={reservedClassNames.optionContainer + ' ' + this.props.optionContainerClass}
 				>
