@@ -1,68 +1,144 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# react-custom-dropdown
 
-## Available Scripts
+Simple Dropdown component for React.
 
-In the project directory, you can run:
+### Installation
 
-### `npm start`
+```
+// with npm
+$ npm install react-custom-dropdown  --save
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+// with yarn
+$ yarn add react-custom-dropdown
+```
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+### Usage
 
-### `npm test`
+This is the basic usage of react-dropdown
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```Javascript
+import Dropdown from 'react-custom-dropdown';
 
-### `npm run build`
+const InputSample = {
+	simpleDropDown: [
+		{ label: 'MicroSoft Word', value: 'Microsoft Word', subMenu: [{ label: 'sdsd', value: 'sdsdd' }] },
+		{ label: 'PageMaker', value: 'PageMaker' },
+		{ label: 'Different', value: 'Different' }
+	],
+	groupingDropDown: [
+		{
+			title: 'SORT BY',
+			data: [
+				{ label: 'Latest First', value: 'Latest First', disabled: true },
+				{ label: 'Oldest Frist', value: 'Oldest Frist' },
+				{ label: 'Different', value: 'Different' }
+			]
+		},
+		{
+			title: 'Timeframe filter',
+			data: [
+				{ label: 'Today', value: 'Today', disabled: true },
+				{ label: 'Yesterday', value: 'Yesterday' },
+				{ label: 'This week', value: 'This week' }
+			]
+		}
+	],
+	groupingAcceptOnlyOne: [
+		{
+			title: 'SORT BY',
+			data: [
+				{ label: 'Latest First', value: 'Latest First' },
+				{ label: 'Oldest Frist', value: 'Oldest Frist' },
+				{ label: 'Different', value: 'Different' }
+			]
+		},
+		{
+			title: 'Timeframe filter',
+			data: [
+				{ label: 'Today', value: 'Today' },
+				{ label: 'Yesterday', value: 'Yesterday' },
+				{ label: 'This week', value: 'This week' }
+			]
+		}
+	],
+	groupingAcceptOne_Multiple: [
+		{
+			title: 'SORT BY',
+			data: [
+				{ label: 'Latest First', value: 'Latest First', disabled: true },
+				{ label: 'Oldest Frist', value: 'Oldest Frist' },
+				{ label: 'Different', value: 'Different' }
+			]
+		},
+		{
+			title: 'Timeframe filter',
+			data: [
+				{ label: 'Today', value: 'Today' },
+				{ label: 'Yesterday', value: 'Yesterday' },
+				{ label: 'This week', value: 'This week' }
+			]
+		}
+	]
+};
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+<DropDown
+	ref={this.child}
+	option={InputSample.groupingDropDown}
+	multiSelect={true}
+	isRequiredDefaultMultiselectDesign={false}
+	multiselectHeaderRenderer={() => <div />}
+    onSelect={selectedObj => {
+        console.log('On select ', selectedObj);
+    }}
+    multiselectBtnClass={'apply-btn'} // 'apply-btn' already defined in the 'SmartUpload' component
+    multiselectBtnLabel={'Apply Filter'}
+    multiselectBtnRenderer={() => (
+        <div onClick={() => this.child.current.onMultiSelectDone()} style={applyFilter}>
+            Apply Filter
+        </div>
+    )}
+/>
+```
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+**Options**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+sample option 1
 
-### `npm run eject`
+```JavaScript
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+const options = [
+  'one', 'two', 'three'
+];
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+sample option 2
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```JavaScript
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+const options = [
+  { value: 'one', label: 'One' },
+  { value: 'two', label: 'Two', className: 'myOptionClassName' },
+  {
+   type: 'group', name: 'group1', items: [
+     { value: 'three', label: 'Three', className: 'myOptionClassName' },
+     { value: 'four', label: 'Four' }
+   ]
+  },
+  {
+   type: 'group', name: 'group2', items: [
+     { value: 'five', label: 'Five' },
+     { value: 'six', label: 'Six' }
+   ]
+  }
+];
+```
 
-## Learn More
+**Run example**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+$ npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### License
 
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+MIT
