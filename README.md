@@ -6,10 +6,10 @@ Simple Dropdown component for React.
 
 ```
 // with npm
-$ npm install react-custom-dropdown  --save
+$ npm install @react-compounds/dropdown  --save
 
 // with yarn
-$ yarn add react-custom-dropdown
+$ yarn add @react-compounds/dropdown
 ```
 
 ### Usage
@@ -17,7 +17,7 @@ $ yarn add react-custom-dropdown
 This is the basic usage of react-dropdown
 
 ```Javascript
-import Dropdown from 'react-custom-dropdown';
+import Dropdown from '@react-compounds/dropdown';
 
 const InputSample = {
 	simpleDropDown: [
