@@ -1,0 +1,33 @@
+// {
+// 	"presets": [
+// 		[
+// 			"es2015",
+// 			{
+// 				"modules": false
+// 			}
+// 		],
+// 		"stage-2",
+// 		"react"
+// 	],
+// 	"plugins": ["external-helpers", "css-modules-transform"]
+// }
+
+// {
+// 	"presets": [
+// 		"stage-2",
+// 		"react",
+// 		[
+// 			"latest",
+// 			{
+// 				"es2015": {
+// 					"modules": false
+// 				}
+// 			}
+// 		]
+// 	],
+// 	"plugins": ["external-helpers"]
+// }
+
+{
+	"presets": ["es2015"]
+}
