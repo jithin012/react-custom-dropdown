@@ -9,10 +9,12 @@ import replace from 'rollup-plugin-replace';
 
 import postcss from 'rollup-plugin-postcss';
 import postcssModules from 'postcss-modules';
+import gzipPlugin from 'rollup-plugin-gzip';
+import { uglify } from 'rollup-plugin-uglify';
 const cssExportMap = {};
 
 export default {
-	input: 'src/lib/index.js',
+	input: 'src/index.js',
 	output: [
 		{
 			file: 'dist/index.js',
@@ -22,6 +24,8 @@ export default {
 		}
 	],
 	plugins: [
+		gzipPlugin(),
+		uglify(),
 		postcss({
 			plugins: [
 				postcssModules({
