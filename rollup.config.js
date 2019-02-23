@@ -8,10 +8,10 @@ import json from 'rollup-plugin-json';
 import replace from 'rollup-plugin-replace';
 
 import postcss from 'rollup-plugin-postcss';
-import postcssModules from 'postcss-modules';
+// import postcssModules from 'postcss-modules';
 import gzipPlugin from 'rollup-plugin-gzip';
 import { uglify } from 'rollup-plugin-uglify';
-const cssExportMap = {};
+// const cssExportMap = {};
 
 export default {
 	input: 'src/lib/index.js',
@@ -27,17 +27,17 @@ export default {
 		gzipPlugin(),
 		uglify(),
 		postcss({
-			plugins: [
-				postcssModules({
-					getJSON(id, exportTokens) {
-						cssExportMap[id] = exportTokens;
-					}
-				})
-			],
-			getExportNamed: false,
-			getExport(id) {
-				return cssExportMap[id];
-			},
+			// plugins: [
+			// 	postcssModules({
+			// 		getJSON(id, exportTokens) {
+			// 			cssExportMap[id] = exportTokens;
+			// 		}
+			// 	})
+			// ],
+			// getExportNamed: false,
+			// getExport(id) {
+			// 	return cssExportMap[id];
+			// },
 			extract: 'dist/styles.css'
 		}),
 		progress(),

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import DropDown from './dist';
+import './dist/styles.css';
 
 var applyFilter = {
 	backgroundColor: '#76d0eb',
