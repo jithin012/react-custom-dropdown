@@ -136,7 +136,7 @@ const options = [
 ### TODO
 
 -   [x] Production Level
--   [ ] CSS Polishing
+-   [ ] CSS Polishing and Transitions
 -   [ ] Documentation
 -   [ ] etc..
 
