@@ -133,6 +133,13 @@ const options = [
 ];
 ```
 
+### TODO
+
+-   [x] Production Level
+-   [ ] CSS Polishing
+-   [ ] Documentation
+-   [ ] etc..
+
 **Run example**
 
 ```
@@ -142,5 +149,3 @@ $ npm start
 ### License
 
 MIT
-
-
